@@ -1,5 +1,5 @@
 # NEXUS AI Lab Upgrade
-
+https://nexus-ai-vxpd.onrender.com/app
 This version adds an AI Lab to the existing NEXUS frontend/backend.
 
 ## Added
