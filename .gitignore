@@ -1,0 +1,15 @@
+# Secrets and per-install data - never commit these
+.env
+admins.json
+users.json
+branding.json
+
+# Local data and environments
+chroma_db/
+venv/
+venv-slim/
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.fastembed_cache/

@@ -1,0 +1,12 @@
+flask
+flask-cors
+python-dotenv
+requests
+werkzeug
+itsdangerous
+gunicorn
+pypdf
+chromadb==1.5.9
+langchain-text-splitters
+fastembed
+google-genai

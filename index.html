@@ -1,0 +1,2574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#00eaff">
+<title>NEXUS</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
+
+<style>
+:root{
+  --ink:#0c2228;
+  --paper:#fbfdfe;
+  --sidebar:#f0f6f8;
+  --surface:#eaf2f4;
+  --surface-2:#dbe8ea;
+  --accent:#0891b2;
+  --accent-2:#0e6e8c;
+  --accent-3:#0a7285;
+  --accent-hover:#076e7a;
+  --accent-soft:#e3f5f8;
+  --line:#d3e2e6;
+  --muted:#5c7378;
+  --danger:#e0245e;
+  --danger-soft:#ffe3ea;
+  --success:#0aa876;
+  --success-soft:#dcfaee;
+  --user-text:#031014;
+  --bot-text:#0c1a1d;
+  --shadow:0 8px 24px rgba(15,60,70,.10);
+  --radius:14px;
+  --bg-gradient:none;
+  --glow:0 0 0 rgba(0,0,0,0);
+  --glow-user:0 2px 8px rgba(14,110,140,.14);
+  --glow-bot:0 1px 6px rgba(14,110,140,.10);
+  --grid-line:rgba(8,145,178,.06);
+}
+
+html[data-theme="dark"]{
+  --ink:#d6faff;
+  --paper:#05070a;
+  --sidebar:#030507;
+  --surface:#0b1116;
+  --surface-2:#121c22;
+  --line:#16262d;
+  --muted:#5f8a94;
+  --accent:#00eaff;
+  --accent-2:#ff2ec4;
+  --accent-3:#7effc4;
+  --accent-hover:#00b8cc;
+  --accent-soft:#0a2229;
+  --danger-soft:#2a0f18;
+  --success-soft:#062219;
+  --bot-text:#d6faff;
+  --shadow:0 0 40px rgba(0,234,255,.08);
+  --glow-user:0 0 16px color-mix(in srgb, var(--accent-2) 22%, transparent);
+  --glow-bot:0 0 14px color-mix(in srgb, var(--accent) 16%, transparent);
+  --grid-line:rgba(0,234,255,.06);
+}
+
+html:not([data-theme="dark"]) .brand-mark,
+html:not([data-theme="dark"]) .avatar-sm,
+html:not([data-theme="dark"]) .profile-avatar-lg,
+html:not([data-theme="dark"]) .msg-avatar{
+  box-shadow:0 1px 4px rgba(8,145,178,.16);
+}
+html:not([data-theme="dark"]) .row.user .msg-avatar{box-shadow:0 1px 4px rgba(14,110,140,.18)}
+html:not([data-theme="dark"]) .welcome-logo{box-shadow:0 6px 20px rgba(8,145,178,.16)}
+html:not([data-theme="dark"]) .new-chat-btn:hover{box-shadow:0 4px 14px rgba(8,145,178,.22)}
+html:not([data-theme="dark"]) .quick-btn:hover{box-shadow:0 4px 14px color-mix(in srgb,var(--qc-color,var(--accent)) 18%,transparent)}
+html:not([data-theme="dark"]) .nav-item.active{box-shadow:none}
+html:not([data-theme="dark"]) .qc-modal{box-shadow:0 -6px 24px rgba(15,60,70,.14)}
+html:not([data-theme="dark"]) .qc-option:hover{box-shadow:0 3px 12px rgba(8,145,178,.14)}
+html:not([data-theme="dark"]) .qc-sem-btn:hover{box-shadow:0 3px 10px rgba(8,145,178,.16)}
+html:not([data-theme="dark"]) .admin-login-icon{box-shadow:0 3px 12px rgba(8,145,178,.14)}
+html:not([data-theme="dark"]) .toast{box-shadow:0 6px 20px rgba(15,60,70,.16)}
+html:not([data-theme="dark"]) #askBtn:hover,
+html:not([data-theme="dark"]) .primary:hover{box-shadow:0 3px 10px rgba(8,145,178,.20)}
+html:not([data-theme="dark"]) .mode-toggle button.active{box-shadow:none}
+html:not([data-theme="dark"]) #inputArea:focus-within{box-shadow:0 0 0 3px rgba(8,145,178,.12)}
+html:not([data-theme="dark"]) .qc-trigger:hover{box-shadow:0 2px 8px rgba(8,145,178,.16)}
+html:not([data-theme="dark"]) .dropzone:hover,
+html:not([data-theme="dark"]) .dropzone.dragover{box-shadow:none}
+html:not([data-theme="dark"]) .status.online .status-dot,
+html:not([data-theme="dark"]) .status.offline .status-dot,
+html:not([data-theme="dark"]) .nav-item-badge,
+html:not([data-theme="dark"]) .source-chip .dot,
+html:not([data-theme="dark"]) .typing i{
+  box-shadow:none;
+}
+html:not([data-theme="dark"]) .bubble code{background:rgba(8,145,178,.10)}
+html:not([data-theme="dark"]) header::after,
+html:not([data-theme="dark"]) #inputBar::before{opacity:.25}
+
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background:var(--paper);
+  background-image:var(--bg-gradient);
+  color:var(--ink);
+  display:flex;
+  overflow:hidden;
+  transition:background .2s,color .2s;
+  -webkit-font-smoothing:antialiased;
+}
+button,input{font:inherit}
+button{ -webkit-tap-highlight-color:transparent }
+.mono{font-family:'JetBrains Mono','SF Mono',Consolas,monospace}
+
+#sidebar{
+  width:270px;
+  flex:0 0 270px;
+  background:var(--sidebar);
+  border-right:1px solid var(--line);
+  display:flex;
+  flex-direction:column;
+  padding:15px 12px;
+  transition:width .22s ease,transform .22s ease;
+  z-index:20;
+  position:relative;
+}
+html[data-theme="dark"] #sidebar::after{
+  content:'';position:absolute;top:0;right:-1px;width:1px;height:100%;
+  background:linear-gradient(180deg,transparent,var(--accent) 40%,var(--accent-2) 60%,transparent);
+  opacity:.5;
+}
+#sidebar.collapsed{width:72px;flex-basis:72px;padding:15px 8px}
+#sidebar.collapsed .brand-text,
+#sidebar.collapsed .nav-label,
+#sidebar.collapsed .new-chat-label,
+#sidebar.collapsed .nav-section-label,
+#sidebar.collapsed .sidebar-footer-text{display:none}
+#sidebar.collapsed .nav-item{justify-content:center;padding:11px 0}
+#sidebar.collapsed .new-chat-btn{padding:11px 0}
+#sidebar.collapsed .sidebar-footer{justify-content:center;padding-left:0}
+#sidebar.collapsed .brand{justify-content:center}
+#sidebar.collapsed .brand-row{justify-content:center}
+#sidebar.collapsed .collapse-btn{display:grid;flex:0 0 34px}
+
+.brand-row{display:flex;align-items:center;justify-content:space-between;padding:3px 6px 18px}
+.brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:750;letter-spacing:.01em}
+.brand-mark{
+  width:30px;height:30px;border-radius:7px;background:var(--paper);color:var(--accent);
+  border:1px solid var(--accent);
+  display:grid;place-items:center;font-size:13px;font-weight:800;
+  box-shadow:0 0 14px color-mix(in srgb,var(--accent) 55%,transparent),inset 0 0 8px color-mix(in srgb,var(--accent) 25%,transparent);
+  font-family:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+.collapse-btn,.icon-btn{
+  border:0;background:transparent;color:var(--muted);cursor:pointer;
+  width:34px;height:34px;border-radius:9px;display:grid;place-items:center;
+  transition:.15s ease;
+}
+.collapse-btn:hover,.icon-btn:hover{background:var(--surface);color:var(--accent-3)}
+
+.new-chat-btn{
+  width:100%;border:1px solid var(--accent);border-radius:9px;padding:10px;background:var(--accent-soft);color:var(--accent);
+  display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-weight:700;
+  transition:.15s ease;font-size:13px;letter-spacing:.01em;
+}
+.new-chat-btn:hover{background:var(--accent);color:var(--paper);box-shadow:0 0 20px color-mix(in srgb,var(--accent) 55%,transparent);transform:translateY(-1px)}
+.new-chat-btn:active{transform:translateY(0)}
+
+.nav-section-label{
+  color:var(--muted);font-size:9.5px;font-weight:800;text-transform:uppercase;
+  letter-spacing:.14em;padding:20px 10px 7px;font-family:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+.nav-item{
+  width:100%;border:0;border-left:2px solid transparent;border-radius:8px;
+  background:transparent;color:var(--ink);display:flex;align-items:center;gap:11px;
+  padding:10px 10px;text-align:left;cursor:pointer;font-size:13.5px;margin:1px 0;
+  transition:.15s ease;
+}
+.nav-item:hover{background:var(--surface);color:var(--accent-3)}
+.nav-item.active{background:var(--surface);font-weight:700;border-left-color:var(--accent);color:var(--accent-3);box-shadow:inset 0 0 12px color-mix(in srgb,var(--accent) 10%,transparent)}
+.nav-icon{width:19px;text-align:center;flex:0 0 19px}
+.nav-item-badge{
+  margin-left:auto;width:7px;height:7px;border-radius:50%;background:var(--success);
+  box-shadow:0 0 8px color-mix(in srgb,var(--success) 80%,transparent);
+}
+.sidebar-footer{
+  margin-top:auto;border-top:1px solid var(--line);padding:12px 7px 3px;
+  display:flex;align-items:center;gap:10px;cursor:pointer;border-radius:10px;
+}
+.sidebar-footer:hover{background:var(--surface)}
+.avatar-sm,.profile-avatar-lg{
+  background:var(--paper);color:var(--accent);border:1px solid var(--accent);display:grid;place-items:center;font-weight:750;
+  box-shadow:0 0 10px color-mix(in srgb,var(--accent) 40%,transparent);
+}
+.avatar-sm{width:32px;height:32px;border-radius:50%;font-size:12px;flex:0 0 32px}
+.sidebar-footer-text{min-width:0;font-size:12px;line-height:1.3}
+.sidebar-footer-text .name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-footer-text .course{color:var(--muted);font-size:11px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+#main{min-width:0;flex:1;height:100%;display:flex;flex-direction:column;position:relative}
+header{
+  height:62px;flex:0 0 62px;padding:0 24px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;background:var(--header-bg);
+  backdrop-filter:blur(12px);z-index:5;position:relative;
+}
+header::after{
+  content:'';position:absolute;left:0;bottom:-1px;width:100%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),var(--accent-2) 50%,transparent);
+  opacity:.5;
+}
+.header-left{display:flex;align-items:center;gap:11px;min-width:0}
+.mobile-menu{display:none}
+header h1{font-size:14.5px;margin:0;font-weight:750;letter-spacing:.01em;font-family:'JetBrains Mono','SF Mono',Consolas,monospace}
+.header-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.header-right{display:flex;align-items:center;gap:8px}
+.status{
+  display:flex;align-items:center;gap:6px;font-size:10.5px;color:var(--muted);
+  padding:6px 9px;border:1px solid var(--line);border-radius:999px;font-family:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+.status-dot{width:7px;height:7px;border-radius:50%;background:#d08a2d;transition:background .2s}
+.status.online .status-dot{background:var(--success);box-shadow:0 0 8px color-mix(in srgb,var(--success) 80%,transparent)}
+.status.offline .status-dot{background:var(--danger);box-shadow:0 0 8px color-mix(in srgb,var(--danger) 80%,transparent)}
+
+#chat{
+  flex:1;overflow-y:auto;width:100%;padding:28px 24px 34px;
+  scroll-behavior:smooth;position:relative;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    radial-gradient(circle at 15% 8%, color-mix(in srgb, var(--accent) 10%, transparent) 0%, transparent 32%),
+    radial-gradient(circle at 88% 82%, color-mix(in srgb, var(--accent-2) 8%, transparent) 0%, transparent 34%),
+    var(--bg-gradient);
+  background-size:42px 42px,42px 42px,auto,auto,cover;
+  background-repeat:repeat,repeat,no-repeat,no-repeat,no-repeat;
+}
+.chat-inner{max-width:820px;margin:0 auto}
+#chat::-webkit-scrollbar{width:9px}
+#chat::-webkit-scrollbar-thumb{background:var(--surface-2);border-radius:99px}
+
+.welcome{
+  min-height:calc(100vh - 62px - 102px);display:flex;flex-direction:column;
+  justify-content:center;align-items:center;text-align:center;padding:30px 12px;
+}
+.welcome-logo{
+  width:56px;height:56px;border-radius:15px;background:var(--paper);color:var(--accent);
+  border:1px solid var(--accent);
+  display:grid;place-items:center;font-size:21px;font-weight:850;margin-bottom:18px;
+  box-shadow:0 0 30px color-mix(in srgb,var(--accent) 45%,transparent),inset 0 0 14px color-mix(in srgb,var(--accent) 20%,transparent);
+  font-family:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+.welcome h2{font-size:28px;letter-spacing:-.02em;margin:0 0 8px}
+.welcome p{max-width:580px;color:var(--muted);line-height:1.6;font-size:14px;margin:0 0 24px}
+.quick-grid{width:min(680px,100%);display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.quick-btn{
+  text-align:left;background:var(--surface);color:var(--ink);border:1px solid var(--line);
+  border-radius:11px;padding:13px 14px;cursor:pointer;transition:.15s ease;position:relative;overflow:hidden;
+}
+.quick-btn::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--qc-color,var(--accent));
+}
+.quick-btn:hover{border-color:var(--qc-color,var(--accent));background:var(--accent-soft);box-shadow:0 0 18px color-mix(in srgb,var(--qc-color,var(--accent)) 25%,transparent);transform:translateY(-1px)}
+.quick-btn.c-teal{--qc-color:var(--accent)}
+.quick-btn.c-blue{--qc-color:#3fa6ff}
+.quick-btn.c-plum{--qc-color:var(--accent-2)}
+.quick-btn.c-amber{--qc-color:#ffb020}
+.quick-title{font-size:12.5px;font-weight:700}
+.quick-sub{font-size:11px;color:var(--muted);margin-top:3px}
+
+.row{display:flex;gap:10px;margin:20px 0;animation:rise .22s ease-out}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.row.user{justify-content:flex-end}
+.msg-avatar{
+  width:28px;height:28px;border-radius:50%;flex:0 0 28px;display:grid;place-items:center;
+  font-size:11px;font-weight:750;color:var(--accent);background:var(--paper);margin-top:2px;
+  border:1px solid var(--accent);box-shadow:0 0 8px color-mix(in srgb,var(--accent) 40%,transparent);
+  font-family:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+.row.user .msg-avatar{order:2;color:var(--accent-2);border-color:var(--accent-2);box-shadow:0 0 8px color-mix(in srgb,var(--accent-2) 40%,transparent)}
+.message-wrap{max-width:min(76%,660px);position:relative}
+.bubble{
+  padding:12px 15px;border-radius:13px;font-size:14px;line-height:1.62;
+  overflow-wrap:anywhere;
+}
+.row.user .bubble{background:var(--accent-soft);color:var(--bot-text);border:1px solid var(--accent-2);border-bottom-right-radius:4px;box-shadow:var(--glow-user)}
+.row.bot .bubble{background:var(--surface);color:var(--bot-text);border:1px solid var(--line);border-left:2px solid var(--accent);border-bottom-left-radius:4px;box-shadow:var(--glow-bot)}
+.bubble p{margin:0 0 8px}.bubble p:last-child{margin-bottom:0}
+.bubble ul,.bubble ol{margin:7px 0;padding-left:21px}
+.bubble li{margin:3px 0}
+.bubble code{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent-3);padding:2px 5px;border-radius:5px;font-size:.9em;font-family:'JetBrains Mono','SF Mono',Consolas,monospace}
+.bubble pre{overflow:auto;padding:12px;border-radius:9px;background:color-mix(in srgb,var(--ink) 6%,var(--surface));border:1px solid var(--line)}
+.bubble pre code{background:transparent;padding:0}
+.bubble a{color:var(--accent-3);font-weight:650}
+.bubble strong{font-weight:700;color:var(--accent-3)}
+
+html[data-bubble="solid"] .row.user .bubble{background:var(--accent-soft);color:var(--bot-text);border:1px solid var(--accent-2);box-shadow:var(--glow-user)}
+html[data-bubble="solid"] .row.bot .bubble{background:var(--surface);color:var(--bot-text);border:1px solid var(--line);border-left:2px solid var(--accent);box-shadow:var(--glow-bot)}
+
+html[data-bubble="transparent"] .row.user .bubble{background:transparent;color:var(--ink);border:1px solid var(--accent-2);box-shadow:var(--glow-user)}
+html[data-bubble="transparent"] .row.bot .bubble{background:transparent;color:var(--ink);border:1px solid var(--line);border-left:2px solid var(--accent);box-shadow:var(--glow-bot)}
+
+html[data-bubble="glass"] .row.user .bubble,
+html[data-bubble="glass"] .row.bot .bubble{background:color-mix(in srgb,var(--surface) 55%,transparent);color:var(--ink);border:1px solid color-mix(in srgb,var(--line) 75%,transparent);border-left:2px solid var(--accent);backdrop-filter:blur(8px)}
+html[data-bubble="glass"] .row.user .bubble{border-color:var(--accent-2);box-shadow:var(--glow-user)}
+html[data-bubble="glass"] .row.bot .bubble{box-shadow:var(--glow-bot)}
+
+html[data-bubble="blur"] .row.user .bubble,
+html[data-bubble="blur"] .row.bot .bubble{background:color-mix(in srgb,var(--surface) 68%,transparent);color:var(--ink);border:1px solid var(--line);border-left:2px solid var(--accent);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+html[data-bubble="blur"] .row.user .bubble{border-color:var(--accent-2);box-shadow:var(--glow-user)}
+html[data-bubble="blur"] .row.bot .bubble{box-shadow:var(--glow-bot)}
+
+.message-meta{display:flex;align-items:center;gap:5px;margin-top:6px;color:var(--muted);font-size:10px;font-family:'JetBrains Mono','SF Mono',Consolas,monospace}
+.row.user .message-meta{justify-content:flex-end}
+.msg-action{
+  border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:11px;
+  padding:2px 5px;border-radius:5px;opacity:0;transition:.15s;
+}
+.row:hover .msg-action{opacity:1}.msg-action:hover{background:var(--surface);color:var(--accent-3)}
+.row:focus-within .msg-action{opacity:1}
+@media (hover:none){
+  .msg-action{opacity:1}
+}
+
+.sources-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.source-chip{
+  display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);
+  background:var(--surface);border:1px solid var(--line);border-radius:999px;
+  padding:4px 10px 4px 8px;font-family:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+.source-chip .dot{width:5px;height:5px;border-radius:50%;background:var(--accent);flex-shrink:0;box-shadow:0 0 6px color-mix(in srgb,var(--accent) 80%,transparent)}
+.source-chip.s-amber .dot{background:#ffb020;box-shadow:0 0 6px rgba(255,176,32,.7)}
+.source-chip.s-blue .dot{background:#3fa6ff;box-shadow:0 0 6px rgba(63,166,255,.7)}
+.source-chip.s-plum .dot{background:var(--accent-2);box-shadow:0 0 6px color-mix(in srgb,var(--accent-2) 70%,transparent)}
+
+.typing{display:flex;gap:4px;align-items:center;height:18px}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px color-mix(in srgb,var(--accent) 70%,transparent);animation:bounce 1s infinite ease-in-out}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,70%,100%{transform:translateY(0);opacity:.45}35%{transform:translateY(-4px);opacity:1}}
+
+#inputBar{
+  flex:0 0 auto;border-top:1px solid var(--line);padding:12px 24px 17px;
+  background:color-mix(in srgb,var(--paper) 92%,transparent);backdrop-filter:blur(12px);position:relative;
+}
+#inputBar::before{
+  content:'';position:absolute;left:0;top:-1px;width:100%;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent) 30%,var(--accent-2) 70%,transparent);opacity:.4;
+}
+#inputArea{
+  max-width:820px;margin:0 auto;display:flex;align-items:flex-end;gap:8px;
+  background:var(--surface);border:1px solid var(--line);border-radius:13px;padding:7px 7px 7px 9px;
+  transition:.15s ease;
+}
+#inputArea:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent),0 0 18px color-mix(in srgb,var(--accent) 20%,transparent)}
+#questionInput{
+  flex:1;min-width:0;resize:none;max-height:140px;border:0;outline:0;background:transparent;
+  color:var(--ink);font-size:14px;line-height:1.45;padding:8px 0;font-family:inherit;
+}
+#questionInput::placeholder{color:var(--muted)}
+#askBtn{
+  flex:0 0 auto;border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);border-radius:9px;
+  padding:9px 16px;font-weight:700;font-size:13px;cursor:pointer;transition:.15s;
+}
+#askBtn:hover{background:var(--accent);color:var(--paper);box-shadow:0 0 16px color-mix(in srgb,var(--accent) 55%,transparent)}
+#askBtn:disabled{opacity:.5;cursor:not-allowed}
+.input-hint{max-width:820px;margin:7px auto 0;font-size:10px;color:var(--muted);text-align:center;font-family:'JetBrains Mono','SF Mono',Consolas,monospace}
+
+.qc-trigger{
+  flex:0 0 auto;border:1px solid var(--line);background:var(--paper);color:var(--accent);
+  border-radius:9px;width:38px;height:38px;display:grid;place-items:center;font-size:16px;
+  cursor:pointer;transition:.15s ease;
+}
+.qc-trigger:hover{background:var(--accent-soft);border-color:var(--accent);box-shadow:0 0 14px color-mix(in srgb,var(--accent) 35%,transparent);transform:translateY(-1px)}
+
+.qc-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,4,6,.6);z-index:60;
+  align-items:flex-end;justify-content:center;backdrop-filter:blur(3px);
+}
+.qc-overlay.show{display:flex}
+.qc-modal{
+  width:min(480px,100%);max-height:78vh;background:var(--paper);border:1px solid var(--accent);
+  border-radius:16px 16px 0 0;box-shadow:0 0 40px color-mix(in srgb,var(--accent) 20%,transparent);display:flex;flex-direction:column;
+  animation:qcRise .2s ease-out;overflow:hidden;
+}
+@media(min-width:640px){
+  .qc-overlay{align-items:center}
+  .qc-modal{border-radius:14px;margin-bottom:6vh}
+}
+@keyframes qcRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.qc-header{
+  display:flex;align-items:center;justify-content:space-between;padding:16px 18px;
+  border-bottom:1px solid var(--line);flex:0 0 auto;
+}
+.qc-header-left{display:flex;align-items:center;gap:10px;min-width:0}
+.qc-header h3{margin:0;font-size:14.5px;font-weight:750;letter-spacing:.01em;font-family:'JetBrains Mono','SF Mono',Consolas,monospace}
+.qc-header p{margin:2px 0 0;font-size:11px;color:var(--muted)}
+.qc-back{
+  border:0;background:transparent;color:var(--muted);cursor:pointer;width:30px;height:30px;
+  border-radius:8px;display:grid;place-items:center;font-size:15px;flex:0 0 30px;
+}
+.qc-back:hover{background:var(--surface);color:var(--accent-3)}
+.qc-body{padding:14px 18px 22px;overflow-y:auto}
+.qc-option{
+  display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:1px solid var(--line);
+  background:var(--surface);color:var(--ink);border-radius:12px;padding:13px 14px;cursor:pointer;
+  margin-bottom:9px;transition:.15s ease;
+}
+.qc-option:hover{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 14px color-mix(in srgb,var(--accent) 20%,transparent);transform:translateY(-1px)}
+.qc-option-icon{
+  width:36px;height:36px;border-radius:9px;background:var(--accent-soft);border:1px solid var(--line);display:grid;place-items:center;
+  font-size:16px;flex:0 0 36px;
+}
+.qc-option-text{min-width:0}
+.qc-option-title{font-size:13px;font-weight:700}
+.qc-option-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.qc-sem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
+.qc-sem-btn{
+  border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;
+  padding:14px 6px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s ease;font-family:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+.qc-sem-btn:hover{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);box-shadow:0 0 12px color-mix(in srgb,var(--accent) 25%,transparent);transform:translateY(-1px)}
+@media(max-width:420px){.qc-sem-grid{grid-template-columns:repeat(2,1fr)}}
+
+.view{
+  flex:1;overflow-y:auto;padding:42px 24px;display:none;justify-content:center;align-items:flex-start;
+  background-image:var(--bg-gradient);background-size:cover;background-repeat:no-repeat;
+}
+.view.active{display:flex}
+.view-card{
+  width:min(680px,100%);background:var(--paper);border:1px solid var(--line);
+  border-radius:16px;padding:28px;box-shadow:var(--shadow);
+}
+.view-card h2{font-size:19px;letter-spacing:-.015em;margin:0 0 7px}
+.view-card .lead{color:var(--muted);font-size:13px;line-height:1.6;margin:0 0 24px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.full{grid-column:1/-1}
+.view label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:17px 0 7px;font-family:'JetBrains Mono','SF Mono',Consolas,monospace}
+.view label:first-child{margin-top:0}
+.view input[type=text],.view input[type=password]{
+  width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;
+  background:var(--surface);color:var(--ink);outline:none;font-size:13px;
+}
+.view input[type=text]:focus,.view input[type=password]:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,transparent)}
+.profile-head{display:flex;align-items:center;gap:15px;margin-bottom:20px}
+.profile-avatar-lg{width:62px;height:62px;border-radius:16px;font-size:22px;flex:0 0 62px}
+.profile-head h2{margin:0}.profile-head p{margin:4px 0 0;color:var(--muted);font-size:12px}
+.view-actions{display:flex;gap:9px;margin-top:24px}
+.primary,.ghost{flex:1;border-radius:9px;padding:10px 14px;cursor:pointer;font-size:13px;font-weight:700;transition:.15s ease}
+.primary{border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent)}
+.primary:hover{background:var(--accent);color:var(--paper);box-shadow:0 0 16px color-mix(in srgb,var(--accent) 45%,transparent)}
+.primary:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+.ghost{border:1px solid var(--line);background:var(--paper);color:var(--ink)}.ghost:hover{background:var(--surface)}
+
+.mode-toggle{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.mode-toggle.four{grid-template-columns:repeat(4,1fr)}
+.mode-toggle button{
+  border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;
+  padding:9px 5px;cursor:pointer;font-size:11.5px;font-weight:650;
+}
+.mode-toggle button:hover{background:var(--surface)}
+.mode-toggle button.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);box-shadow:0 0 10px color-mix(in srgb,var(--accent) 25%,transparent)}
+.swatch-row{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:10px;padding:8px 10px}
+.swatch-row input[type=color]{width:38px;height:34px;border:1px solid var(--line);border-radius:7px;padding:2px;background:var(--paper);cursor:pointer}
+.swatch-row span{font-size:11.5px;color:var(--muted)}
+.color-pair{display:flex;gap:8px;align-items:center}.color-pair input{flex:0 0 38px}
+.simple-color-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.simple-color-item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border-radius:10px;padding:9px 10px;font-size:11.5px;color:var(--muted)}
+.simple-color-item input[type=color]{width:38px;height:34px;border:1px solid var(--line);border-radius:7px;padding:2px;background:var(--paper);cursor:pointer}
+.about-line{font-size:13px;line-height:1.7;color:var(--ink);background:var(--surface);padding:13px 14px;border-radius:11px;margin:0 0 10px;border-left:2px solid var(--accent)}
+.about-line b{font-weight:800;color:var(--accent-3)}
+.feature-list{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:16px}
+.feature{border:1px solid var(--line);border-radius:11px;padding:12px}
+.feature b{font-size:12px}.feature p{font-size:11px;color:var(--muted);margin:4px 0 0;line-height:1.5}
+
+.admin-login-icon{
+  width:52px;height:52px;border-radius:14px;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent);
+  display:grid;place-items:center;font-size:22px;margin-bottom:14px;box-shadow:0 0 18px color-mix(in srgb,var(--accent) 30%,transparent);
+}
+.field-error{
+  display:none;font-size:12px;color:var(--danger);background:var(--danger-soft);
+  border-radius:9px;padding:9px 11px;margin-top:14px;border:1px solid color-mix(in srgb,var(--danger) 30%,transparent);
+}
+.field-error.show{display:block}
+
+.role-badge{
+  display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;
+  color:var(--accent);background:var(--accent-soft);border:1px solid var(--accent);border-radius:999px;padding:4px 10px;
+  font-family:'JetBrains Mono','SF Mono',Consolas,monospace;
+}
+.admin-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.admin-topbar-left{display:flex;align-items:center;gap:10px}
+.admin-topbar-left .avatar-sm{width:36px;height:36px;font-size:13px;flex:0 0 36px}
+.admin-username{font-size:13.5px;font-weight:700}
+
+.dropzone{
+  border:1.5px dashed var(--line);border-radius:13px;padding:26px 16px;text-align:center;
+  cursor:pointer;transition:.15s ease;background:var(--surface);
+}
+.dropzone:hover,.dropzone.dragover{border-color:var(--accent);background:var(--accent-soft);box-shadow:0 0 20px color-mix(in srgb,var(--accent) 18%,transparent) inset}
+.dropzone-icon{font-size:26px;margin-bottom:8px}
+.dropzone-title{font-size:13px;font-weight:700}
+.dropzone-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.dropzone input[type=file]{display:none}
+.picked-file{
+  display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line);
+  border-radius:11px;padding:10px 12px;margin-top:12px;font-size:12.5px;
+}
+.picked-file .pf-icon{font-size:16px}
+.picked-file .pf-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:650}
+.picked-file .pf-remove{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:14px}
+.upload-status{
+  font-size:12px;border-radius:9px;padding:10px 12px;margin-top:12px;display:none;line-height:1.5;
+}
+.upload-status.show{display:block}
+.upload-status.info{background:var(--surface);color:var(--muted)}
+.upload-status.success{background:var(--success-soft);color:var(--success);border:1px solid color-mix(in srgb,var(--success) 30%,transparent)}
+.upload-status.error{background:var(--danger-soft);color:var(--danger);border:1px solid color-mix(in srgb,var(--danger) 30%,transparent)}
+
+.doc-list-header{display:flex;align-items:center;justify-content:space-between;margin:26px 0 10px}
+.doc-list-header h3{margin:0;font-size:13px;font-weight:750}
+.refresh-btn{
+  border:1px solid var(--line);background:var(--paper);color:var(--muted);border-radius:8px;
+  padding:5px 10px;font-size:11px;cursor:pointer;transition:.15s ease;
+}
+.refresh-btn:hover{background:var(--surface);color:var(--accent-3);border-color:var(--accent)}
+.doc-row{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin-bottom:7px;
+}
+.doc-row-left{display:flex;align-items:center;gap:10px;min-width:0}
+.doc-icon{font-size:15px}
+.doc-name{font-size:12.5px;font-weight:650;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.doc-chunks{font-size:10px;color:var(--muted);white-space:nowrap;font-family:'JetBrains Mono','SF Mono',Consolas,monospace}
+.doc-empty{font-size:12px;color:var(--muted);text-align:center;padding:16px 0}
+.doc-row-right{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.doc-action-btn{
+  border:1px solid var(--line);background:var(--paper);color:var(--muted);border-radius:8px;
+  width:28px;height:28px;display:grid;place-items:center;font-size:13px;cursor:pointer;
+  transition:.15s ease;flex:0 0 28px;
+}
+.doc-action-btn:hover{border-color:var(--accent);color:var(--accent-3);background:var(--accent-soft)}
+.doc-action-btn.doc-action-danger:hover{border-color:var(--danger);color:var(--danger);background:var(--danger-soft)}
+.doc-action-btn:disabled{opacity:.5;cursor:not-allowed}
+.doc-action-btn.spinning{animation:docSpin .8s linear infinite}
+@keyframes docSpin{to{transform:rotate(360deg)}}
+
+.confirm-overlay{
+  display:none;position:fixed;inset:0;background:rgba(0,4,6,.6);z-index:80;
+  align-items:center;justify-content:center;backdrop-filter:blur(3px);padding:16px;
+}
+.confirm-overlay.show{display:flex}
+.confirm-modal{
+  width:min(380px,100%);background:var(--paper);border:1px solid var(--danger);
+  border-radius:14px;padding:22px;box-shadow:0 0 30px color-mix(in srgb,var(--danger) 18%,transparent);
+  animation:qcRise .18s ease-out;text-align:center;
+}
+.confirm-modal.confirm-neutral{border-color:var(--accent)}
+.confirm-icon{
+  width:46px;height:46px;border-radius:12px;background:var(--danger-soft);color:var(--danger);
+  display:grid;place-items:center;font-size:20px;margin:0 auto 12px;
+}
+.confirm-neutral .confirm-icon{background:var(--accent-soft);color:var(--accent)}
+.confirm-modal h3{margin:0 0 7px;font-size:15px}
+.confirm-modal p{margin:0 0 20px;font-size:12.5px;color:var(--muted);line-height:1.55}
+.confirm-actions{display:flex;gap:9px}
+.danger-btn{
+  flex:1;border-radius:9px;padding:10px 14px;cursor:pointer;font-size:13px;font-weight:700;
+  border:1px solid var(--danger);background:var(--danger-soft);color:var(--danger);transition:.15s ease;
+}
+.danger-btn:hover{background:var(--danger);color:#fff;box-shadow:0 0 16px color-mix(in srgb,var(--danger) 45%,transparent)}
+.danger-btn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+
+.onboarding-tip{
+  display:none;position:fixed;z-index:90;width:min(250px,80vw);background:var(--paper);
+  border:1px solid var(--accent);border-radius:12px;padding:14px 15px;
+  box-shadow:0 0 24px color-mix(in srgb,var(--accent) 30%,transparent);
+}
+.onboarding-tip.show{display:block;animation:qcRise .18s ease-out}
+.onboarding-tip::before{
+  content:'';position:absolute;width:10px;height:10px;background:var(--paper);
+  border:1px solid var(--accent);transform:rotate(45deg);
+}
+.onboarding-tip.arrow-bottom::before{left:24px;bottom:-6px;border-top:0;border-left:0}
+.onboarding-tip.arrow-left::before{left:-6px;top:20px;border-top:0;border-right:0}
+.onboarding-eyebrow{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-family:'JetBrains Mono','SF Mono',Consolas,monospace}
+.onboarding-title{font-size:13.5px;font-weight:750;margin:5px 0 4px}
+.onboarding-text{font-size:12px;color:var(--muted);line-height:1.5;margin:0 0 13px}
+.onboarding-footer{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.onboarding-progress{font-size:10px;color:var(--muted);font-family:'JetBrains Mono','SF Mono',Consolas,monospace}
+.onboarding-actions{display:flex;gap:6px}
+.onboarding-skip{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:11.5px;padding:6px 8px}
+.onboarding-skip:hover{color:var(--ink)}
+.onboarding-next{border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);border-radius:7px;padding:6px 12px;font-size:11.5px;font-weight:700;cursor:pointer}
+.onboarding-next:hover{background:var(--accent);color:var(--paper)}
+
+.toast{
+  position:fixed;right:20px;bottom:92px;z-index:100;background:var(--surface);color:var(--ink);
+  padding:10px 13px;border-radius:9px;font-size:12px;box-shadow:0 0 20px color-mix(in srgb,var(--accent) 15%,transparent);
+  border:1px solid var(--accent);
+  opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s;
+}
+.toast.show{opacity:1;transform:translateY(0)}
+
+.overlay{display:none}
+@media(max-width:800px){
+  #sidebar{position:fixed;left:0;top:0;bottom:0;transform:translateX(-100%);box-shadow:var(--shadow)}
+  #sidebar.mobile-open{transform:translateX(0)}
+  #sidebar.collapsed{width:270px;flex-basis:270px;padding:15px 12px}
+  #sidebar.collapsed .brand-text,#sidebar.collapsed .nav-label,#sidebar.collapsed .new-chat-label,
+  #sidebar.collapsed .nav-section-label,#sidebar.collapsed .sidebar-footer-text{display:block}
+  #sidebar.collapsed .nav-item{justify-content:flex-start;padding:10px}
+  #sidebar.collapsed .new-chat-btn{padding:10px}
+  #sidebar.collapsed .sidebar-footer{justify-content:flex-start;padding-left:7px}
+  #sidebar.collapsed .brand{justify-content:flex-start}
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10}
+  .overlay.show{display:block}
+  .mobile-menu{display:grid}
+  header{padding:0 14px}
+  .header-sub{display:none}
+  .status{display:none}
+  #chat{padding:20px 14px 26px}
+  #inputBar{padding:10px 12px 14px}
+  .message-wrap{max-width:85%}
+  .quick-grid{grid-template-columns:1fr}
+  .welcome h2{font-size:24px}
+  .view{padding:24px 14px}
+  .view-card{padding:22px}
+}
+@media(max-width:520px){
+  .form-grid{grid-template-columns:1fr}.full{grid-column:auto}
+  .simple-color-grid{grid-template-columns:1fr}
+  .feature-list{grid-template-columns:1fr}
+  .mode-toggle.four{grid-template-columns:1fr 1fr}
+  .bubble{font-size:13.5px}
+  .view-actions{flex-direction:column}
+  .msg-avatar{display:none}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
+.study-session-shell{
+  width:min(1100px,94%);
+  height:calc(100vh - 104px);
+  margin:0 auto;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  padding:20px 0 26px;
+}
+.study-session-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.study-session-head h2{margin:0;font-size:23px;letter-spacing:-.02em}
+.study-session-head p{margin:5px 0 0;color:var(--muted);font-size:13px}
+.study-session-controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.study-session-select,.study-session-input{
+  border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:10px;
+  padding:10px 12px;outline:none;font:inherit;font-size:13px;
+}
+.study-session-select:focus,.study-session-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,transparent)}
+.study-action-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px}
+.study-action-btn{
+  text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:13px;
+  padding:12px;cursor:pointer;transition:.18s ease;min-height:72px;
+}
+.study-action-btn:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 45%,var(--line));box-shadow:var(--shadow)}
+.study-action-btn .ico{font-size:18px;display:block;margin-bottom:7px}.study-action-btn b{font-size:12px}.study-action-btn span{display:block;color:var(--muted);font-size:10px;margin-top:3px;line-height:1.4}
+.study-prompt-row{display:flex;gap:8px}
+.study-prompt-row textarea{flex:1;min-height:52px;max-height:130px;resize:vertical;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:13px;padding:12px;font:inherit;font-size:13px;outline:none}
+.study-prompt-row textarea:focus{border-color:var(--accent)}
+.study-run-btn{flex:0 0 auto;align-self:stretch;border:0;border-radius:12px;padding:0 19px;background:var(--accent);color:#001317;font-weight:800;cursor:pointer}
+.study-run-btn:disabled{opacity:.55;cursor:not-allowed}
+.study-output-list{flex:1;min-height:180px;overflow:auto;border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--surface) 82%,transparent);padding:12px}
+.study-empty{height:100%;min-height:160px;display:grid;place-items:center;text-align:center;color:var(--muted);font-size:13px;padding:20px}
+.study-empty strong{display:block;color:var(--ink);font-size:15px;margin-bottom:5px}
+.study-result{border:1px solid var(--line);background:var(--paper);border-radius:14px;margin-bottom:10px;overflow:hidden;box-shadow:var(--glow-bot)}
+.study-result:last-child{margin-bottom:0}
+.study-result-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px;border-bottom:1px solid var(--line);background:var(--surface)}
+.study-result-label{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--accent)}
+.study-result-time{font-size:10px;color:var(--muted)}
+.study-result-prompt{padding:11px 13px;background:color-mix(in srgb,var(--surface) 55%,transparent);font-size:12px;line-height:1.5}
+.study-result-prompt b{color:var(--muted);margin-right:5px}.study-result-output{padding:14px;font-size:13px;line-height:1.65;color:var(--bot-text)}
+.study-result-output p:first-child{margin-top:0}.study-result-output p:last-child{margin-bottom:0}.study-result-output pre{overflow:auto}.study-result-output table{width:100%;border-collapse:collapse}.study-result-output th,.study-result-output td{border:1px solid var(--line);padding:6px 8px;text-align:left}
+.study-source-row{display:flex;gap:6px;flex-wrap:wrap;padding:0 13px 12px}.study-source-chip{font-size:9px;border:1px solid var(--line);border-radius:999px;padding:4px 7px;color:var(--muted)}
+.study-loading{display:inline-flex;gap:5px;align-items:center;color:var(--muted)}.study-loading i{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:studyDot 1s infinite ease-in-out}.study-loading i:nth-child(2){animation-delay:.15s}.study-loading i:nth-child(3){animation-delay:.3s}@keyframes studyDot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+@media(max-width:900px){.study-action-grid{grid-template-columns:repeat(3,1fr)}.study-session-shell{height:auto;min-height:calc(100vh - 104px)}}
+@media(max-width:600px){.study-action-grid{grid-template-columns:repeat(2,1fr)}.study-session-head{flex-direction:column}.study-session-controls{width:100%}.study-session-select{flex:1}.study-prompt-row{flex-direction:column}.study-run-btn{min-height:44px}.study-output-list{min-height:300px}}
+
+.ai-lab-shell{display:flex;flex-direction:column;gap:18px;height:100%;min-height:0;padding:24px;overflow:auto}
+.ai-lab-hero{border:1px solid var(--line);border-radius:18px;padding:22px;background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 11%,var(--surface)),color-mix(in srgb,var(--accent-2) 9%,var(--surface)));position:relative;overflow:hidden}
+.ai-lab-hero:after{content:'';position:absolute;inset:auto -80px -100px auto;width:260px;height:260px;border-radius:50%;background:color-mix(in srgb,var(--accent) 16%,transparent);filter:blur(20px)}
+.ai-lab-hero h2{margin:0 0 7px;font-size:25px}.ai-lab-hero p{margin:0;color:var(--muted);max-width:760px;line-height:1.55}
+.ai-lab-tabs{display:flex;gap:8px;flex-wrap:wrap}.ai-lab-tab{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 13px;border-radius:10px;cursor:pointer;font-weight:700;font-size:12px}.ai-lab-tab.active{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.ai-lab-panel{display:none}.ai-lab-panel.active{display:block}
+.ai-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.ai-tool-card{border:1px solid var(--line);background:var(--surface);border-radius:15px;padding:18px;cursor:pointer;transition:.16s}.ai-tool-card:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:var(--shadow)}.ai-tool-icon{font-size:25px}.ai-tool-card h3{margin:10px 0 5px;font-size:15px}.ai-tool-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.45}
+.ai-form{display:grid;gap:12px;max-width:920px}.ai-form label{font-size:12px;font-weight:800;color:var(--muted)}.ai-form textarea,.ai-form input,.ai-form select{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:12px;outline:none}.ai-form textarea:focus,.ai-form input:focus,.ai-form select:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 12%,transparent)}.ai-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.ai-actions{display:flex;gap:8px;flex-wrap:wrap}.ai-primary{border:1px solid var(--accent);background:var(--accent);color:var(--paper);padding:10px 15px;border-radius:10px;font-weight:800;cursor:pointer}.ai-secondary{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 15px;border-radius:10px;font-weight:700;cursor:pointer}
+.ai-output{margin-top:15px;border:1px solid var(--line);background:var(--surface);border-radius:15px;padding:14px;min-height:90px}.ai-output img{display:block;width:100%;max-height:620px;object-fit:contain;border-radius:11px;background:#05070a}.ai-output .muted{color:var(--muted)}
+.voice-orb{width:120px;height:120px;border-radius:50%;margin:10px auto 18px;display:grid;place-items:center;font-size:42px;background:radial-gradient(circle at 35% 30%,color-mix(in srgb,var(--accent) 80%,white),color-mix(in srgb,var(--accent-2) 65%,var(--surface)));box-shadow:0 0 45px color-mix(in srgb,var(--accent) 25%,transparent);cursor:pointer}.voice-orb.listening{animation:voicePulse 1.15s infinite}.voice-status{text-align:center;color:var(--muted);font-size:13px}.voice-transcript{border:1px dashed var(--line);border-radius:12px;padding:12px;min-height:70px;color:var(--ink);background:var(--surface)}
+@keyframes voicePulse{50%{transform:scale(1.08);box-shadow:0 0 65px color-mix(in srgb,var(--accent-2) 35%,transparent)}}
+.effect-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.effect-btn{border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:10px 6px;border-radius:10px;cursor:pointer;font-size:11px}.effect-btn.active{border-color:var(--accent);background:var(--accent-soft);color:var(--accent)}
+.studio-drop{border:1px dashed var(--line);border-radius:15px;padding:25px;text-align:center;background:var(--surface)}
+@media(max-width:900px){.ai-grid{grid-template-columns:1fr 1fr}.ai-row{grid-template-columns:1fr}.effect-grid{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:600px){.ai-lab-shell{padding:14px}.ai-grid{grid-template-columns:1fr}.effect-grid{grid-template-columns:1fr 1fr}}
+
+.auth-screen{
+  position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
+  padding:24px;overflow-y:auto;background-color:var(--paper);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    radial-gradient(circle at 15% 10%, color-mix(in srgb, var(--accent) 16%, transparent) 0%, transparent 36%),
+    radial-gradient(circle at 88% 85%, color-mix(in srgb, var(--accent-2) 14%, transparent) 0%, transparent 38%);
+  background-size:42px 42px,42px 42px,auto,auto;
+  background-repeat:repeat,repeat,no-repeat,no-repeat;
+}
+.auth-screen.auth-checking .auth-card{visibility:hidden}
+.auth-card{
+  width:min(440px,100%);margin:auto;background:var(--paper);border:1px solid var(--line);
+  border-radius:18px;padding:30px 28px 24px;box-shadow:var(--shadow);animation:qcRise .22s ease-out;
+}
+html[data-theme="dark"] .auth-card{border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.auth-brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:750;margin-bottom:22px}
+.auth-card h2{font-size:22px;letter-spacing:-.02em;margin:0 0 6px}
+.auth-sub{margin:0 0 20px;color:var(--muted);font-size:13px;line-height:1.55}
+.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:4px}
+.auth-tabs button{border:0;background:transparent;color:var(--muted);border-radius:8px;padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;transition:.15s ease}
+.auth-tabs button:hover{color:var(--ink)}
+.auth-tabs button.active{background:var(--accent-soft);color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
+.auth-card label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:15px 0 6px;font-family:'JetBrains Mono','SF Mono',Consolas,monospace}
+.auth-card label span{text-transform:none;font-weight:600;letter-spacing:0}
+.auth-card input[type=text],.auth-card input[type=password]{
+  width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;
+  background:var(--surface);color:var(--ink);outline:none;font-size:13.5px;
+}
+.auth-card input[type=text]:focus,.auth-card input[type=password]:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent)}
+.auth-pw{position:relative}
+.auth-pw input{padding-right:64px}
+.auth-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;padding:6px 9px;border-radius:6px}
+.auth-eye:hover{color:var(--accent-3);background:var(--surface-2)}
+.auth-row{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.auth-submit{
+  width:100%;margin-top:20px;border:1px solid var(--accent);background:var(--accent);color:#001317;
+  border-radius:10px;padding:12px;font-size:13.5px;font-weight:800;cursor:pointer;transition:.15s ease;
+}
+.auth-submit:hover{box-shadow:0 0 18px color-mix(in srgb,var(--accent) 45%,transparent)}
+.auth-submit:disabled{opacity:.6;cursor:not-allowed;box-shadow:none}
+.auth-foot{margin:14px 0 0;text-align:center;font-size:11.5px;color:var(--muted);min-height:0}
+.auth-foot:empty{display:none}
+.field-error.notice{background:var(--accent-soft);color:var(--accent-3);border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
+@media(max-width:520px){
+  .auth-row{grid-template-columns:1fr}
+  .auth-card{padding:24px 20px 20px}
+}
+#view-aiLab .ai-lab-shell{width:min(1100px,100%)}
+.ai-lab-panel .study-session-shell{width:100%;height:auto;min-height:0;padding:0}
+.ai-lab-panel .study-output-list{min-height:320px;max-height:60vh}
+</style>
+</head>
+
+<body>
+<div class="overlay" id="overlay" onclick="closeMobileSidebar()"></div>
+
+<aside id="sidebar">
+  <div class="brand-row">
+    <div class="brand mono"><div class="brand-mark" id="brandMarkLetter">N</div><span class="brand-text" id="brandNameText">NEXUS</span></div>
+    <button class="collapse-btn" id="collapseBtn" onclick="toggleSidebar()" title="Collapse sidebar" aria-label="Collapse sidebar">◂</button>
+  </div>
+
+  <button class="new-chat-btn" onclick="newChat()"><span>＋</span><span class="new-chat-label">New Chat</span></button>
+
+  <div class="nav-section-label">Workspace</div>
+  <button class="nav-item active" id="navChat" onclick="showView('chat')"><span class="nav-icon">💬</span><span class="nav-label">Chat</span></button>
+  <button type="button" class="nav-item" id="navAiLab" aria-controls="view-aiLab" aria-label="Open AI Lab"><span class="nav-icon">✨</span><span class="nav-label">AI Lab</span></button>
+
+  <div class="nav-section-label">Account</div>
+  <button class="nav-item" id="navProfile" onclick="showView('profile')"><span class="nav-icon">👤</span><span class="nav-label">Profile</span></button>
+  <button class="nav-item" id="navSettings" onclick="showView('settings')"><span class="nav-icon">⚙️</span><span class="nav-label">Settings</span></button>
+  <button class="nav-item" id="navAdmin" onclick="showView('admin')">
+    <span class="nav-icon">🛡️</span><span class="nav-label">Admin</span>
+    <span class="nav-item-badge" id="adminBadge" style="display:none"></span>
+  </button>
+  <button class="nav-item" id="navAbout" onclick="showView('about')"><span class="nav-icon">ⓘ</span><span class="nav-label">About</span></button>
+  <button class="nav-item" id="navLogout" onclick="logout()"><span class="nav-icon">🚪</span><span class="nav-label">Log out</span></button>
+
+  <div class="sidebar-footer" onclick="showView('profile')" title="Open profile">
+    <div class="avatar-sm" id="avatarLetterSm">J</div>
+    <div class="sidebar-footer-text">
+      <div class="name" id="footerName">Your name</div>
+      <div class="course" id="footerCourse">BCA · DBIT</div>
+    </div>
+  </div>
+</aside>
+
+<main id="main">
+  <header>
+    <div class="header-left">
+      <button class="icon-btn mobile-menu" onclick="openMobileSidebar()" aria-label="Open menu">☰</button>
+      <div>
+        <h1 id="headerTitle">NEXUS</h1>
+        <div class="header-sub" id="headerTagline" style="display:none"></div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="status" id="serverStatus"><span class="status-dot"></span><span id="statusText">Checking server…</span></div>
+      <button class="icon-btn" onclick="showView('settings')" title="Settings" aria-label="Settings">⚙</button>
+    </div>
+  </header>
+
+  <section id="chat" class="active">
+    <div class="chat-inner" id="chatInner" role="log" aria-live="polite" aria-relevant="additions" aria-label="Conversation">
+      <div class="welcome" id="welcome">
+        <div class="welcome-logo" id="welcomeLogoLetter">N</div>
+        <h2>What do you want to know?</h2>
+        <p>Ask about the DBIT BCA syllabus, subjects, units, credits, topics, or exam rules from your connected academic documents.</p>
+        <div class="quick-grid">
+          <button class="quick-btn c-teal" onclick="openQuickChatFor('credits')">
+            <div class="quick-title">🎓 Credit structure</div><div class="quick-sub">Pick a semester or subject</div>
+          </button>
+          <button class="quick-btn c-blue" onclick="openQuickChatFor('subjects')">
+            <div class="quick-title">📚 Semester subjects</div><div class="quick-sub">Pick a semester</div>
+          </button>
+          <button class="quick-btn c-plum" onclick="openQuickChatFor('syllabus')">
+            <div class="quick-title">🗂️ Find a syllabus</div><div class="quick-sub">Pick a semester, then a subject</div>
+          </button>
+          <button class="quick-btn c-amber" onclick="openQuickChatFor('grading')">
+            <div class="quick-title">📋 Exam rules</div><div class="quick-sub">Marks, CGPA, evaluation</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-aiLab" class="view">
+  <div class="ai-lab-shell">
+    <div class="ai-lab-hero">
+      <h2>✨ NEXUS AI Lab</h2>
+      <p>Multimodal tools for studying, creating and speaking with NEXUS. Voice input/output works in supported browsers; image generation uses your configured Gemini API.</p>
+    </div>
+    <div class="ai-lab-tabs">
+      <button class="ai-lab-tab active" data-tab="hub" onclick="aiLabTab('hub')">AI Hub</button>
+      <button class="ai-lab-tab" data-tab="image" onclick="aiLabTab('image')">🖼️ Image Studio</button>
+      <button class="ai-lab-tab" data-tab="study" onclick="aiLabTab('study')">🧠 Study Session</button>
+      <button class="ai-lab-tab" data-tab="voice" onclick="aiLabTab('voice')">🎙️ Voice Mode</button>
+      <button class="ai-lab-tab" data-tab="voiceLab" onclick="aiLabTab('voiceLab')">🔊 Voice Lab</button>
+      <button class="ai-lab-tab" data-tab="tools" onclick="aiLabTab('tools')">🧰 AI Toolkit</button>
+    </div>
+
+    <div class="ai-lab-panel active" id="aiPanel-hub">
+      <div class="ai-grid">
+        <div class="ai-tool-card" onclick="aiLabTab('study')"><div class="ai-tool-icon">🧠</div><h3>Study Session</h3><p>Explain topics, make notes, quizzes and flashcards from your syllabus.</p></div>
+        <div class="ai-tool-card" onclick="aiLabTab('image')"><div class="ai-tool-icon">🖼️</div><h3>Image Studio</h3><p>Generate academic diagrams, illustrations, posters and creative visuals from prompts.</p></div>
+        <div class="ai-tool-card" onclick="aiLabTab('voice')"><div class="ai-tool-icon">🎙️</div><h3>Talk to NEXUS</h3><p>Speak naturally, send the transcript to your existing AI backend and hear the response.</p></div>
+        <div class="ai-tool-card" onclick="aiLabTab('voiceLab')"><div class="ai-tool-icon">🔊</div><h3>Voice Lab</h3><p>Record audio and preview pitch, speed, radio, robot and echo-style effects locally.</p></div>
+        <div class="ai-tool-card" onclick="usePrompt('Create concise exam notes for the topic I am studying.')"><div class="ai-tool-icon">📝</div><h3>Notes Generator</h3><p>Use the existing NEXUS chat brain to generate focused study notes.</p></div>
+        <div class="ai-tool-card" onclick="usePrompt('Generate a 10-question quiz from the syllabus topic I provide, with answers and explanations.')"><div class="ai-tool-icon">🧪</div><h3>Quiz Generator</h3><p>Generate practice questions directly through your current AI chat workflow.</p></div>
+      </div>
+    </div>
+
+    <div class="ai-lab-panel" id="aiPanel-image">
+      <div class="ai-form">
+        <label>Describe the image</label>
+        <textarea id="imagePrompt" rows="5" placeholder="Example: A clean academic infographic explaining supervised vs unsupervised learning, dark futuristic NEXUS style, readable labels."></textarea>
+        <div class="ai-row">
+          <div><label>Style</label><select id="imageStyle"><option>Academic infographic</option><option>Modern illustration</option><option>3D render</option><option>Anime-inspired</option><option>Cyber futuristic</option><option>Minimal poster</option></select></div>
+          <div><label>Aspect ratio</label><select id="imageRatio"><option>1:1</option><option>16:9</option><option>9:16</option><option>4:3</option><option>3:2</option></select></div>
+          <div><label>Resolution</label><select id="imageSize"><option>1K</option><option>2K</option><option>4K</option></select></div>
+        </div>
+        <div class="ai-actions"><button class="ai-primary" onclick="generateNexusImage()">✨ Generate Image</button><button class="ai-secondary" onclick="document.getElementById('imagePrompt').value=''">Clear</button></div>
+      </div>
+      <div class="ai-output" id="imageOutput"><span class="muted">Your generated image will appear here.</span></div>
+    </div>
+
+    <div class="ai-lab-panel" id="aiPanel-voice">
+      <div class="ai-form">
+        <div class="voice-orb" id="voiceOrb" onclick="toggleVoiceMode()">🎙️</div>
+        <div class="voice-status" id="voiceStatus">Tap the microphone and speak to NEXUS.</div>
+        <div class="voice-transcript" id="voiceTranscript">Your speech transcript will appear here.</div>
+        <div class="ai-actions" style="justify-content:center"><button class="ai-secondary" onclick="speakLastNexusAnswer()">🔊 Speak last answer</button><button class="ai-secondary" onclick="stopSpeaking()">⏹ Stop voice</button></div>
+      </div>
+    </div>
+
+    <div class="ai-lab-panel" id="aiPanel-voiceLab">
+      <div class="ai-form">
+        <div class="studio-drop"><div style="font-size:30px">🎙️</div><h3>Voice Lab</h3><p class="muted">Record a short clip, then preview it with effects. Processing stays in your browser.</p><button class="ai-primary" id="recordBtn" onclick="toggleRecorder()">Start Recording</button></div>
+        <div class="effect-grid">
+          <button class="effect-btn active" data-effect="normal" onclick="setVoiceEffect('normal')">Normal</button><button class="effect-btn" data-effect="deep" onclick="setVoiceEffect('deep')">Deep</button><button class="effect-btn" data-effect="high" onclick="setVoiceEffect('high')">High</button><button class="effect-btn" data-effect="radio" onclick="setVoiceEffect('radio')">Radio</button><button class="effect-btn" data-effect="robot" onclick="setVoiceEffect('robot')">Robot</button><button class="effect-btn" data-effect="echo" onclick="setVoiceEffect('echo')">Echo</button>
+        </div>
+        <audio id="voicePreview" controls style="width:100%;display:none"></audio>
+      </div>
+    </div>
+
+    <div class="ai-lab-panel" id="aiPanel-study">
+  <div class="study-session-shell">
+    <div class="study-session-head">
+      <div>
+        <h2>Study Session</h2>
+        <p>Focused AI study tools. Your prompts and answers stay here — nothing is added to the main chat.</p>
+      </div>
+      <div class="study-session-controls">
+        <select id="studySemester" class="study-session-select" aria-label="Study semester">
+          <option value="">All semesters</option><option value="1">1st semester</option><option value="2">2nd semester</option>
+          <option value="3">3rd semester</option><option value="4">4th semester</option><option value="5">5th semester</option>
+          <option value="6">6th semester</option><option value="7">7th semester</option><option value="8">8th semester</option>
+        </select>
+        <button class="ghost" onclick="clearStudySession()">Clear</button>
+      </div>
+    </div>
+
+    <div class="study-action-grid">
+      <button class="study-action-btn" onclick="studyPreset('explain')"><span class="ico">💡</span><b>Explain Topic</b><span>Simple concept breakdown</span></button>
+      <button class="study-action-btn" onclick="studyPreset('summarize')"><span class="ico">📝</span><b>Study Notes</b><span>Compact revision notes</span></button>
+      <button class="study-action-btn" onclick="studyPreset('quiz')"><span class="ico">🧩</span><b>Practice Quiz</b><span>Test your understanding</span></button>
+      <button class="study-action-btn" onclick="studyPreset('flashcards')"><span class="ico">🗃️</span><b>Flashcards</b><span>Fast active recall</span></button>
+      <button class="study-action-btn" onclick="studyPreset('important')"><span class="ico">🎯</span><b>Important Topics</b><span>Focus your revision</span></button>
+    </div>
+
+    <div class="study-prompt-row">
+          <textarea id="studyPrompt" placeholder="What do you want to study? e.g. Explain Unit 2 of Artificial Intelligence…" aria-label="Study prompt"></textarea>
+          <button class="study-run-btn" id="studyRunBtn" onclick="runStudySession('ask')">Run Study AI</button>
+        </div>
+
+        <div class="study-output-list" id="studyOutputList">
+          <div class="study-empty" id="studyEmpty"><div><strong>Your Study Session starts here</strong>Choose a tool above or write your own prompt. The prompt and AI answer will appear together in this panel.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ai-lab-panel" id="aiPanel-tools">
+      <div class="ai-grid">
+        <div class="ai-tool-card" onclick="usePrompt('Explain the next topic I provide like I am a beginner, then give one example and three questions.')"><div class="ai-tool-icon">🧑‍🏫</div><h3>Explain Simply</h3><p>Beginner-friendly teaching with examples and checks.</p></div>
+        <div class="ai-tool-card" onclick="usePrompt('Turn the next syllabus topic I provide into concise exam notes with headings, definitions and important points.')"><div class="ai-tool-icon">📝</div><h3>Exam Notes</h3><p>Structured revision notes for syllabus topics.</p></div>
+        <div class="ai-tool-card" onclick="usePrompt('Create a 10-question mixed quiz from the next syllabus topic I provide. Include answers and short explanations.')"><div class="ai-tool-icon">🧪</div><h3>Quiz Me</h3><p>Practice questions with explanations.</p></div>
+        <div class="ai-tool-card" onclick="usePrompt('Review the code I provide, explain the bug, then give the corrected version and explain the fix.')"><div class="ai-tool-icon">💻</div><h3>Code Coach</h3><p>Debugging, explanations and improvements through chat.</p></div>
+        <div class="ai-tool-card" onclick="usePrompt('Create a presentation outline for the next academic topic I provide, with slide titles and key points.')"><div class="ai-tool-icon">📊</div><h3>Presentation Planner</h3><p>Turn topics into clean presentation structures.</p></div>
+        <div class="ai-tool-card" onclick="usePrompt('Act as a technical interviewer. Ask me one question at a time and evaluate my answers.')"><div class="ai-tool-icon">🎯</div><h3>Interview Mode</h3><p>Practice technical interview conversations.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+  <section class="view" id="view-profile">
+    <div class="view-card">
+      <div class="profile-head">
+        <div class="profile-avatar-lg" id="avatarLetterLg">J</div>
+        <div><h2>Profile</h2><p id="profHeadSub">Your details are saved locally in this browser.</p></div>
+      </div>
+      <div class="form-grid">
+        <div>
+          <label for="profName">Name</label>
+          <input type="text" id="profName" placeholder="Your name" autocomplete="name">
+        </div>
+        <div>
+          <label for="profEnrol">Enrolment Number</label>
+          <input type="text" id="profEnrol" placeholder="Optional" autocomplete="off">
+        </div>
+        <div class="full">
+          <label for="profCourse">Course / Year</label>
+          <input type="text" id="profCourse" placeholder="e.g. BCA · 3rd Year">
+        </div>
+      </div>
+      <div class="view-actions">
+        <button class="ghost" onclick="showView('chat')">Cancel</button>
+        <button class="primary" onclick="saveProfile()">Save Profile</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-settings">
+    <div class="view-card">
+      <h2>Settings</h2>
+      <p class="lead">Customize the appearance and chat experience. Preferences are stored locally.</p>
+
+      <label>Appearance</label>
+      <div class="mode-toggle">
+        <button id="lightBtn" onclick="setMode('light')">☀ Light</button>
+        <button id="darkBtn" onclick="setMode('dark')">☾ Dark</button>
+        <button id="normalBtn" onclick="setMode('normal')">◐ System</button>
+      </div>
+      <div id="normalStatus" style="font-size:11px;color:var(--muted);margin-top:7px;display:none"></div>
+
+      <label>Interface Colors</label>
+      <div class="simple-color-grid">
+        <div class="simple-color-item"><span>Left Side</span><input type="color" id="sidebarColor" aria-label="Left side color"></div>
+        <div class="simple-color-item"><span>Top Bar</span><input type="color" id="headerColor" aria-label="Top bar color"></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin-top:7px">Simple solid colors for the sidebar and top bar.</div>
+
+      <label>Message Bubble Style</label>
+      <div class="mode-toggle four">
+        <button id="solidBtn" onclick="setBubbleStyle('solid')">Solid</button>
+        <button id="transparentBtn" onclick="setBubbleStyle('transparent')">Outline</button>
+        <button id="glassBtn" onclick="setBubbleStyle('glass')">Glass</button>
+        <button id="blurBtn" onclick="setBubbleStyle('blur')">Blur</button>
+      </div>
+
+      <label>Page Background</label>
+      <div class="mode-toggle">
+        <button id="bgSolidBtn" onclick="setBgStyle('solid')">Solid</button>
+        <button id="bgGradientBtn" onclick="setBgStyle('gradient')">Gradient</button>
+      </div>
+
+      <label>Accent Color</label>
+      <div class="swatch-row"><input type="color" id="accentColor"><span>Buttons, highlights and your messages</span></div>
+
+      <label>AI Response Background</label>
+      <div class="swatch-row"><input type="color" id="botBg"><span>Assistant message background</span></div>
+
+      <label>Gradient Colors</label>
+      <div class="swatch-row">
+        <div class="color-pair"><input type="color" id="gradFrom"><input type="color" id="gradTo"></div>
+        <span>Used only when Gradient is enabled</span>
+      </div>
+
+      <div class="view-actions">
+        <button class="ghost" onclick="resetTheme()">Reset</button>
+        <button class="primary" onclick="applyAndSaveTheme()">Apply Changes</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-admin">
+    <div class="view-card" id="adminCard"></div>
+  </section>
+
+  <section class="view" id="view-about">
+    <div class="view-card">
+      <h2 id="aboutHeading">About NEXUS</h2>
+      <p class="lead">A focused academic assistant interface for the DBIT BCA syllabus project.</p>
+      <p class="about-line"><b>What it is:</b> An AI assistant designed to answer questions about the DBIT BCA syllabus using retrieval-augmented generation.</p>
+      <p class="about-line"><b>How it works:</b> A student's question is converted into an embedding, matched against relevant document chunks using semantic search, and then passed to an LLM to generate a grounded response.</p>
+      <p class="about-line"><b>Documents connected:</b> BCA Scheme &amp; Syllabus, University Ordinance 11 (exam rules), and the detailed 5th Semester syllabus — plus anything an admin has uploaded since.</p>
+      <p class="about-line"><b>Built by:</b> Jatin Setia · BCA · DBIT (GGSIPU)</p>
+
+      <div class="feature-list">
+        <div class="feature"><b>📖 Syllabus-first</b><p>Grounded in official academic documents.</p></div>
+        <div class="feature"><b>🔎 Semantic search</b><p>Vector retrieval over document chunks.</p></div>
+        <div class="feature"><b>🔗 Cited sources</b><p>Each answer shows which document it drew from.</p></div>
+        <div class="feature"><b>🛡️ Admin uploads</b><p>Admins can add new syllabus PDFs live.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <div id="inputBar">
+    <div id="inputArea">
+      <button id="quickChatBtn" class="qc-trigger" onclick="openQuickChat()" title="Quick Chat" aria-label="Open quick chat">⚡</button>
+      <textarea id="questionInput" rows="1" placeholder="Ask about the BCA syllabus…" aria-label="Ask a question"></textarea>
+      <button id="askBtn" onclick="askQuestion()">Ask</button>
+    </div>
+    <div class="input-hint">Enter to send · Shift + Enter for a new line · ⚡ for quick chat</div>
+  </div>
+</main>
+
+<div class="qc-overlay" id="qcOverlay" onclick="closeQuickChat(event)">
+  <div class="qc-modal" onclick="event.stopPropagation()">
+    <div class="qc-header">
+      <div class="qc-header-left">
+        <button class="qc-back" id="qcBackBtn" onclick="qcGoBack()" style="display:none" aria-label="Back">←</button>
+        <div>
+          <h3 id="qcTitle">Quick Chat</h3>
+          <p id="qcSubtitle">What do you need?</p>
+        </div>
+      </div>
+      <button class="icon-btn" onclick="closeQuickChat()" aria-label="Close">✕</button>
+    </div>
+    <div class="qc-body" id="qcBody"></div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="deleteConfirmOverlay" onclick="closeDeleteConfirm(event)">
+  <div class="confirm-modal" onclick="event.stopPropagation()">
+    <div class="confirm-icon">🗑️</div>
+    <h3>Delete this document?</h3>
+    <p id="deleteConfirmText">This will permanently remove all indexed chunks for this document.</p>
+    <div class="confirm-actions">
+      <button class="ghost" onclick="closeDeleteConfirm()">Cancel</button>
+      <button class="danger-btn" id="deleteConfirmBtn" onclick="confirmDeleteDocument()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div id="authScreen" class="auth-screen auth-checking" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="auth-card">
+    <div class="auth-brand mono"><div class="brand-mark" id="authBrandMark">N</div><span id="authBrandName">NEXUS</span></div>
+    <h2 id="authTitle">Welcome back</h2>
+    <p class="auth-sub" id="authSub">Log in to use the syllabus assistant.</p>
+
+    <div class="auth-tabs" role="tablist">
+      <button type="button" role="tab" id="authTabLogin" class="active" aria-selected="true" onclick="setAuthMode('login')">Log in</button>
+      <button type="button" role="tab" id="authTabSignup" aria-selected="false" onclick="setAuthMode('signup')">Sign up</button>
+    </div>
+
+    <form id="authForm" onsubmit="submitAuth(event)" novalidate>
+      <div id="authSignupFields" style="display:none">
+        <label for="authName">Full name</label>
+        <input type="text" id="authName" placeholder="Your name" autocomplete="name" maxlength="60">
+        <div class="auth-row">
+          <div>
+            <label for="authEnrol">Enrolment no. <span>(optional)</span></label>
+            <input type="text" id="authEnrol" placeholder="e.g. 01234567890" autocomplete="off" maxlength="30">
+          </div>
+          <div>
+            <label for="authCourse">Course / Year <span>(optional)</span></label>
+            <input type="text" id="authCourse" placeholder="BCA · 2nd Year" maxlength="60">
+          </div>
+        </div>
+      </div>
+
+      <label for="authUsername">Username</label>
+      <input type="text" id="authUsername" placeholder="Your username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="30">
+
+      <label for="authPassword">Password</label>
+      <div class="auth-pw">
+        <input type="password" id="authPassword" placeholder="Your password" autocomplete="current-password" maxlength="128">
+        <button type="button" class="auth-eye" id="authEye" onclick="toggleAuthPassword()" aria-label="Show or hide password">Show</button>
+      </div>
+
+      <div id="authConfirmWrap" style="display:none">
+        <label for="authConfirm">Confirm password</label>
+        <input type="password" id="authConfirm" placeholder="Re-enter your password" autocomplete="new-password" maxlength="128">
+      </div>
+
+      <div class="field-error" id="authError" role="alert"></div>
+      <button type="submit" class="auth-submit" id="authSubmit">Log in</button>
+    </form>
+    <p class="auth-foot" id="authFoot"></p>
+  </div>
+</div>
+
+<script>
+const API_URL = '/ask';
+const API_BASE = '';
+
+let branding = { name: 'NEXUS', tagline: '' };
+let currentChatHistory = []; // Tracks messages for conversation memory
+
+function escapeAttr(str){
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function escapeHtml(str){
+  return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function applyBranding(b){
+  branding = b;
+  const letter = (b.name || 'N').trim().charAt(0).toUpperCase() || 'N';
+
+  document.title = b.tagline ? `${b.name} — ${b.tagline}` : b.name;
+
+  const headerTitle = $('headerTitle');
+  if(headerTitle) headerTitle.textContent = b.name;
+
+  const headerTagline = $('headerTagline');
+  if(headerTagline){
+    if(b.tagline){
+      headerTagline.textContent = b.tagline;
+      headerTagline.style.display = 'block';
+    }else{
+      headerTagline.textContent = '';
+      headerTagline.style.display = 'none';
+    }
+  }
+
+  const brandMark = $('brandMarkLetter');
+  if(brandMark) brandMark.textContent = letter;
+
+  const brandName = $('brandNameText');
+  if(brandName) brandName.textContent = b.name;
+
+  const welcomeLogo = $('welcomeLogoLetter');
+  if(welcomeLogo) welcomeLogo.textContent = letter;
+
+  const aboutHeading = $('aboutHeading');
+  if(aboutHeading) aboutHeading.textContent = `About ${b.name}`;
+
+  const authBrandMark = $('authBrandMark');
+  if(authBrandMark) authBrandMark.textContent = letter;
+  const authBrandName = $('authBrandName');
+  if(authBrandName) authBrandName.textContent = b.name;
+}
+
+async function loadBranding(){
+  try{
+    const r = await fetch(`${API_BASE}/config`, { signal: AbortSignal.timeout(4000) });
+    if(r.ok){
+      const data = await r.json();
+      signupEnabled = data.signup_enabled !== false;
+      applyBranding(data);
+      applySignupAvailability();
+    }
+  }catch(e){}
+}
+
+const themeDefaults = {
+  light:{
+    accent:'#0891b2', botBg:'#e3f5f8', userText:'#031014', botText:'#0c1a1d',
+    gradFrom:'#e3f5f8', gradTo:'#dbe8ea', sidebarBg:'#f0f6f8', headerBg:'#fbfdfe'
+  },
+  dark:{
+    accent:'#00eaff', botBg:'#0a2229', userText:'#031014', botText:'#d6faff',
+    gradFrom:'#0a2229', gradTo:'#16262d', sidebarBg:'#030507', headerBg:'#05070a'
+  }
+};
+const appDefaults = { mode:'dark', bubbleStyle:'solid', bgStyle:'solid' };
+
+let palettes = {
+  light: Object.assign({}, themeDefaults.light),
+  dark: Object.assign({}, themeDefaults.dark)
+};
+
+const sourceLabels = {
+  'BCASYL.pdf': 'BCA Scheme & Syllabus',
+  'Ordinance11.pdf': 'Ordinance 11 (Exam Rules)',
+  'BCA_5th_Sem.pdf': '5th Semester Syllabus',
+  'BCA_1st_year.pdf': '1st Year Syllabus'
+};
+
+const sourceColors = {
+  'BCASYL.pdf': 's-blue',
+  'Ordinance11.pdf': 's-amber',
+  'BCA_5th_Sem.pdf': 's-plum',
+  'BCA_1st_year.pdf': ''
+};
+
+let currentMode = appDefaults.mode;
+let currentBubbleStyle = appDefaults.bubbleStyle;
+let currentBgStyle = appDefaults.bgStyle;
+let isSending = false;
+
+const $ = id => document.getElementById(id);
+
+function showToast(message){
+  const toast = $('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => toast.classList.remove('show'), 2200);
+}
+
+function toggleSidebar(){
+  const sb = $('sidebar');
+  if(window.innerWidth <= 800){
+    sb.classList.toggle('mobile-open');
+    $('overlay').classList.toggle('show', sb.classList.contains('mobile-open'));
+    return;
+  }
+  sb.classList.toggle('collapsed');
+  $('collapseBtn').textContent = sb.classList.contains('collapsed') ? '▸' : '◂';
+  localStorage.setItem('nexus_sidebar_collapsed', sb.classList.contains('collapsed') ? '1' : '0');
+}
+function openMobileSidebar(){$('sidebar').classList.add('mobile-open');$('overlay').classList.add('show')}
+function closeMobileSidebar(){$('sidebar').classList.remove('mobile-open');$('overlay').classList.remove('show')}
+
+function loadSidebarState(){
+  if(localStorage.getItem('nexus_sidebar_collapsed') === '1' && window.innerWidth > 800){
+    $('sidebar').classList.add('collapsed');
+    $('collapseBtn').textContent='▸';
+  }
+}
+
+const STUDY_API = `${API_BASE}/study-session`;
+const studyActionNames = {
+  ask:'Study AI', explain:'Explain Topic', summarize:'Study Notes', quiz:'Practice Quiz',
+  flashcards:'Flashcards', important:'Important Topics'
+};
+
+function clearStudySession(){
+  $('studyOutputList').innerHTML = `
+    <div class="study-empty" id="studyEmpty"><div><strong>Your Study Session starts here</strong>Choose a tool above or write your own prompt. The prompt and AI answer will appear together in this panel.</div></div>`;
+  $('studyPrompt').value = '';
+  showToast('Study Session cleared');
+}
+
+function studyPreset(action){
+  const input = $('studyPrompt');
+  if(!input.value.trim()){
+    input.focus();
+    showToast('Type a topic first, then choose a study tool');
+    return;
+  }
+  runStudySession(action);
+}
+
+function addStudyResult(action, prompt, answer, sources){
+  const empty = $('studyEmpty');
+  if(empty) empty.remove();
+
+  const result = document.createElement('article');
+  result.className = 'study-result';
+
+  const output = typeof marked !== 'undefined'
+    ? DOMPurify.sanitize(marked.parse(answer || ''))
+    : escapeHtml(answer || '').replace(/\n/g,'<br>');
+
+  const sourceHtml = (sources || []).map(src =>
+    `<span class="study-source-chip">${escapeHtml(sourceLabels[src] || src)}</span>`
+  ).join('');
+
+  result.innerHTML = `
+    <div class="study-result-head">
+      <span class="study-result-label">${escapeHtml(studyActionNames[action] || 'Study AI')}</span>
+      <span class="study-result-time">${new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>
+    </div>
+    <div class="study-result-prompt"><b>Prompt</b>${escapeHtml(prompt)}</div>
+    <div class="study-result-output">${output}</div>
+    ${sourceHtml ? `<div class="study-source-row">${sourceHtml}</div>` : ''}
+  `;
+
+  $('studyOutputList').appendChild(result);
+  $('studyOutputList').scrollTop = $('studyOutputList').scrollHeight;
+}
+
+function addStudyLoading(){
+  const empty = $('studyEmpty');
+  if(empty) empty.remove();
+  const el = document.createElement('article');
+  el.className = 'study-result';
+  el.id = 'studyLoading';
+  el.innerHTML = `<div class="study-result-head"><span class="study-result-label">Study AI</span><span class="study-loading"><i></i><i></i><i></i></span></div><div class="study-result-output"><span class="study-loading">Reading your academic context…</span></div>`;
+  $('studyOutputList').appendChild(el);
+  $('studyOutputList').scrollTop = $('studyOutputList').scrollHeight;
+  return el;
+}
+
+async function runStudySession(action='ask'){
+  const input = $('studyPrompt');
+  const btn = $('studyRunBtn');
+  const question = input.value.trim();
+  if(!question){
+    input.focus();
+    showToast('Enter something to study first');
+    return;
+  }
+  if(btn.disabled) return;
+
+  const semester = $('studySemester').value || null;
+  const loading = addStudyLoading();
+  btn.disabled = true;
+  btn.textContent = 'Thinking…';
+
+  try{
+    const response = await authFetch(STUDY_API, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({question, action, semester}),
+      signal:AbortSignal.timeout(45000)
+    });
+    const data = await response.json().catch(()=>({}));
+    if(!response.ok) throw new Error(data.error || data.answer || `Server returned ${response.status}`);
+
+    loading.remove();
+    addStudyResult(action, question, data.answer || 'No answer returned.', data.sources || []);
+    input.value = '';
+    showToast('Study answer ready');
+    setServerStatus(true);
+  }catch(err){
+    loading.remove();
+    if(err.name === 'AuthExpired') return;
+    addStudyResult(action, question, `**Study Session error**\n\n${err.message || 'Could not reach the AI server.'}`, []);
+    setServerStatus(false);
+  }finally{
+    btn.disabled = false;
+    btn.textContent = 'Run Study AI';
+    input.focus();
+  }
+}
+
+$('studyPrompt')?.addEventListener('keydown', e=>{
+  if(e.key==='Enter' && !e.shiftKey){
+    e.preventDefault();
+    runStudySession('ask');
+  }
+});
+
+function showView(name){
+  if(name === 'study'){ showView('aiLab'); aiLabTab('study'); return; }
+  $('chat').style.display = 'none';
+  $('inputBar').style.display = 'none';
+  document.querySelectorAll('.view').forEach(el => {
+    el.classList.remove('active');
+    el.style.display = 'none';
+  });
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+  if(name === 'chat'){
+    $('navChat').classList.add('active');
+    $('chat').style.display = 'block';
+    $('chat').classList.add('active');
+    $('inputBar').style.display = 'block';
+    setTimeout(() => $('questionInput').focus(), 50);
+  }else{
+    const nav = $('nav' + name.charAt(0).toUpperCase() + name.slice(1));
+    const view = $('view-' + name);
+    if(nav) nav.classList.add('active');
+    if(view){
+      view.classList.add('active');
+      view.style.display = 'flex';
+    }
+    if(name === 'admin') renderAdminView();
+    if(name === 'aiLab') initAiLab();
+  }
+  closeMobileSidebar();
+}
+
+function newChat(){
+  currentChatHistory = []; // Reset conversation memory on new chat
+  $('chatInner').innerHTML = `
+    <div class="welcome" id="welcome">
+      <div class="welcome-logo" id="welcomeLogoLetter">${branding.name.charAt(0).toUpperCase()}</div>
+      <h2>What do you want to know?</h2>
+      <p>Ask about the DBIT BCA syllabus, subjects, units, credits, topics, or exam rules from your connected academic documents.</p>
+      <div class="quick-grid">
+        <button class="quick-btn c-teal" onclick="openQuickChatFor('credits')">
+        <div class="quick-title">🎓 Credit structure</div><div class="quick-sub">Pick a semester or subject</div>
+      </button>
+      <button class="quick-btn c-blue" onclick="openQuickChatFor('subjects')">
+        <div class="quick-title">📚 Semester subjects</div><div class="quick-sub">Pick a semester</div>
+      </button>
+      <button class="quick-btn c-plum" onclick="openQuickChatFor('syllabus')">
+        <div class="quick-title">🗂️ Find a syllabus</div><div class="quick-sub">Pick a semester, then a subject</div>
+      </button>
+      <button class="quick-btn c-amber" onclick="openQuickChatFor('grading')">
+        <div class="quick-title">📋 Exam rules</div><div class="quick-sub">Marks, CGPA, evaluation</div>
+      </button>
+    </div>`;
+  showView('chat');
+  showToast('New chat started');
+}
+
+function loadProfile(){
+  let p={};
+  try{p=JSON.parse(localStorage.getItem('nexus_profile') || '{}')}catch(e){}
+  $('profName').value=p.name || '';
+  $('profEnrol').value=p.enrol || '';
+  $('profCourse').value=p.course || '';
+  const letter=(p.name || 'J').trim().charAt(0).toUpperCase() || 'J';
+  $('avatarLetterSm').textContent=letter;
+  $('avatarLetterLg').textContent=letter;
+  $('footerName').textContent=p.name || 'Your name';
+  $('footerCourse').textContent=p.course || 'BCA · DBIT';
+  const headSub = $('profHeadSub');
+  if(headSub) headSub.textContent = authSession.username
+    ? `Signed in as @${authSession.username} · details are saved in this browser.`
+    : 'Your details are saved locally in this browser.';
+}
+
+function saveProfile(){
+  const profile={
+    name:$('profName').value.trim(),
+    enrol:$('profEnrol').value.trim(),
+    course:$('profCourse').value.trim()
+  };
+  localStorage.setItem('nexus_profile',JSON.stringify(profile));
+  loadProfile();
+  showToast('Profile saved');
+  showView('chat');
+}
+
+function systemPrefersDark(){
+  return window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)').matches : null;
+}
+function timeBasedIsDark(){
+  const h=new Date().getHours();
+  return h<7 || h>=19;
+}
+function effectiveTheme(mode){
+  if(mode==='normal'){
+    const sys=systemPrefersDark();
+    const dark=sys===null ? timeBasedIsDark() : sys;
+    updateNormalStatus(sys!==null,dark);
+    return dark?'dark':'light';
+  }
+  $('normalStatus').style.display='none';
+  return mode;
+}
+function updateNormalStatus(usingSystem,isDark){
+  $('normalStatus').style.display='block';
+  $('normalStatus').textContent=`Following ${usingSystem?'system preference':'time of day'} · currently ${isDark?'dark':'light'}`;
+}
+
+function setThemeColorMeta(hex){
+  let meta=document.querySelector('meta[name="theme-color"]');
+  if(!meta){
+    meta=document.createElement('meta');
+    meta.setAttribute('name','theme-color');
+    document.head.appendChild(meta);
+  }
+  if(hex) meta.setAttribute('content',hex);
+}
+
+function buildFlatTheme(){
+  const eff = effectiveTheme(currentMode);
+  const p = palettes[eff];
+  return {
+    mode: currentMode,
+    bubbleStyle: currentBubbleStyle,
+    bgStyle: currentBgStyle,
+    accent: p.accent,
+    botBg: p.botBg,
+    userText: p.userText,
+    botText: p.botText,
+    gradFrom: p.gradFrom,
+    gradTo: p.gradTo,
+    sidebarBg: p.sidebarBg,
+    headerBg: p.headerBg
+  };
+}
+
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',effectiveTheme(t.mode));
+  document.documentElement.setAttribute('data-bubble',t.bubbleStyle);
+
+  const root=document.documentElement.style;
+  root.setProperty('--accent',t.accent);
+  root.setProperty('--accent-soft',t.botBg);
+  root.setProperty('--user-text',t.userText);
+  root.setProperty('--bot-text',t.botText);
+  root.setProperty('--sidebar',t.sidebarBg);
+  root.setProperty('--header-bg',t.headerBg);
+  root.setProperty('--bg-gradient',
+    t.bgStyle==='gradient' && t.gradFrom && t.gradTo
+    ? `linear-gradient(135deg,${t.gradFrom}55,${t.gradTo}55)` : 'none'
+  );
+  setThemeColorMeta(t.headerBg);
+
+  $('lightBtn').classList.toggle('active',t.mode==='light');
+  $('darkBtn').classList.toggle('active',t.mode==='dark');
+  $('normalBtn').classList.toggle('active',t.mode==='normal');
+  $('solidBtn').classList.toggle('active',t.bubbleStyle==='solid');
+  $('transparentBtn').classList.toggle('active',t.bubbleStyle==='transparent');
+  $('glassBtn').classList.toggle('active',t.bubbleStyle==='glass');
+  $('blurBtn').classList.toggle('active',t.bubbleStyle==='blur');
+  $('bgSolidBtn').classList.toggle('active',t.bgStyle==='solid');
+  $('bgGradientBtn').classList.toggle('active',t.bgStyle==='gradient');
+
+  $('accentColor').value=t.accent;
+  $('botBg').value=t.botBg;
+  $('gradFrom').value=t.gradFrom;
+  $('gradTo').value=t.gradTo;
+  $('sidebarColor').value=t.sidebarBg;
+  $('headerColor').value=t.headerBg;
+}
+
+function setMode(mode){
+  currentMode=mode;
+  applyTheme(buildFlatTheme());
+}
+function setBubbleStyle(style){
+  currentBubbleStyle=style;
+  document.documentElement.setAttribute('data-bubble',style);
+  ['solid','transparent','glass','blur'].forEach(x=>$(`${x}Btn`).classList.toggle('active',x===style));
+}
+function setBgStyle(style){
+  currentBgStyle=style;
+  $('bgSolidBtn').classList.toggle('active',style==='solid');
+  $('bgGradientBtn').classList.toggle('active',style==='gradient');
+  applyLivePreviewColors();
+}
+function applyLivePreviewColors(){
+  const eff = effectiveTheme(currentMode);
+  const p = palettes[eff];
+  p.accent=$('accentColor').value;
+  p.botBg=$('botBg').value;
+  p.sidebarBg=$('sidebarColor').value;
+  p.headerBg=$('headerColor').value;
+  p.gradFrom=$('gradFrom').value;
+  p.gradTo=$('gradTo').value;
+
+  const root=document.documentElement.style;
+  root.setProperty('--accent',p.accent);
+  root.setProperty('--accent-soft',p.botBg);
+  root.setProperty('--sidebar',p.sidebarBg);
+  root.setProperty('--header-bg',p.headerBg);
+  setThemeColorMeta(p.headerBg);
+  root.setProperty('--bg-gradient',
+    currentBgStyle==='gradient' && p.gradFrom && p.gradTo
+    ? `linear-gradient(135deg,${p.gradFrom}55,${p.gradTo}55)` : 'none'
+  );
+}
+function applyAndSaveTheme(){
+  applyLivePreviewColors();
+  const toSave = {
+    mode: currentMode, bubbleStyle: currentBubbleStyle, bgStyle: currentBgStyle,
+    light: palettes.light, dark: palettes.dark
+  };
+  localStorage.setItem('nexus_theme',JSON.stringify(toSave));
+  applyTheme(buildFlatTheme());
+  showToast('Appearance saved');
+  showView('chat');
+}
+function resetTheme(){
+  localStorage.removeItem('nexus_theme');
+  palettes = { light: Object.assign({}, themeDefaults.light), dark: Object.assign({}, themeDefaults.dark) };
+  currentMode=appDefaults.mode;currentBubbleStyle=appDefaults.bubbleStyle;currentBgStyle=appDefaults.bgStyle;
+  applyTheme(buildFlatTheme());
+  showToast('Appearance reset');
+}
+function loadTheme(){
+  let saved=null;
+  try{saved=JSON.parse(localStorage.getItem('nexus_theme') || 'null')}catch(e){}
+
+  const hasPerModeShape = saved && typeof saved.light === 'object' && typeof saved.dark === 'object';
+  palettes = {
+    light: Object.assign({}, themeDefaults.light, hasPerModeShape ? saved.light : {}),
+    dark: Object.assign({}, themeDefaults.dark, hasPerModeShape ? saved.dark : {})
+  };
+  currentMode = (saved && saved.mode) || appDefaults.mode;
+  currentBubbleStyle = (saved && saved.bubbleStyle) || appDefaults.bubbleStyle;
+  currentBgStyle = (saved && saved.bgStyle) || appDefaults.bgStyle;
+  applyTheme(buildFlatTheme());
+
+  if(window.matchMedia){
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{
+      if(currentMode==='normal') applyTheme(buildFlatTheme());
+    });
+  }
+}
+
+function usePrompt(text){
+  showView('chat');
+  $('questionInput').value=text;
+  autoResize();
+  askQuestion();
+}
+
+function initials(){
+  let p={};
+  try{p=JSON.parse(localStorage.getItem('nexus_profile') || '{}')}catch(e){}
+  return (p.name || 'J').trim().charAt(0).toUpperCase() || 'J';
+}
+
+function addMessage(role, content, loading=false, sources=[]){
+  const row=document.createElement('div');
+  row.className=`row ${role}`;
+
+  const avatar=document.createElement('div');
+  avatar.className='msg-avatar';
+  avatar.textContent = role==='bot' ? (branding.name || 'N').trim().charAt(0).toUpperCase() : initials();
+
+  const wrap=document.createElement('div');
+  wrap.className='message-wrap';
+
+  const bubble=document.createElement('div');
+  bubble.className='bubble';
+
+  if(loading){
+    bubble.innerHTML='<div class="typing" aria-label="Thinking"><i></i><i></i><i></i></div>';
+  }else if(role==='bot'){
+    const raw=marked.parse(String(content || ''));
+    bubble.innerHTML=DOMPurify.sanitize(raw,{USE_PROFILES:{html:true}});
+  }else{
+    bubble.textContent=content;
+  }
+
+  wrap.appendChild(bubble);
+
+  if(!loading){
+    const meta=document.createElement('div');
+    meta.className='message-meta';
+    meta.innerHTML=`<span>${role==='bot'?branding.name:'You'}</span>`;
+    const copy=document.createElement('button');
+    copy.className='msg-action';
+    copy.textContent='Copy';
+    copy.onclick=()=>copyText(bubble.innerText,copy);
+    meta.appendChild(copy);
+    wrap.appendChild(meta);
+
+    if(role==='bot' && sources && sources.length){
+      const srcRow=document.createElement('div');
+      srcRow.className='sources-row';
+      sources.forEach(src=>{
+        const chip=document.createElement('span');
+        chip.className=`source-chip ${sourceColors[src] || ''}`;
+        chip.innerHTML=`<span class="dot"></span>${sourceLabels[src] || src}`;
+        srcRow.appendChild(chip);
+      });
+      wrap.appendChild(srcRow);
+    }
+  }
+
+  row.appendChild(avatar);
+  row.appendChild(wrap);
+  $('chatInner').appendChild(row);
+  scrollChat();
+  return row;
+}
+
+async function copyText(text,button){
+  try{
+    await navigator.clipboard.writeText(text);
+    const old=button.textContent;button.textContent='Copied';
+    setTimeout(()=>button.textContent=old,1200);
+  }catch(e){showToast('Could not copy text')}
+}
+
+function scrollChat(){
+  const chat=$('chat');
+  requestAnimationFrame(()=>chat.scrollTop=chat.scrollHeight);
+}
+
+async function askQuestion(){
+  if(isSending)return;
+  const input=$('questionInput');
+  const btn=$('askBtn');
+  const question=input.value.trim();
+  if(!question)return;
+
+  const welcome=$('welcome');
+  if(welcome)welcome.remove();
+
+  isSending=true;btn.disabled=true;btn.textContent='…';
+  input.value='';autoResize();
+
+  const userRow=addMessage('user',question);
+  const loading=addMessage('bot','',true);
+
+  try{
+    const response=await authFetch(API_URL,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        question: question,
+        history: currentChatHistory // Send history for memory/rewriting
+      }),
+      signal:AbortSignal.timeout(90000)
+    });
+
+    if(!response.ok) throw new Error(`Server returned ${response.status}`);
+    const data=await response.json();
+    loading.remove();
+
+    const answer=data?.answer;
+    if(!answer) throw new Error('No answer returned by the server');
+    addMessage('bot',answer,false,data?.sources || []);
+
+    // Push into chat memory array
+    currentChatHistory.push({ role: 'user', content: question });
+    currentChatHistory.push({ role: 'assistant', content: answer });
+
+    setServerStatus(true);
+  }catch(err){
+    loading.remove();
+    if(err.name==='AuthExpired'){
+      userRow.remove();
+      input.value=question; autoResize();
+      return;
+    }
+    const message=err.name==='TimeoutError'
+      ? 'The request took too long. Please try again.'
+      : 'I could not reach the AI server. Make sure your backend is running at http://127.0.0.1:5001.';
+    addMessage('bot',message);
+    setServerStatus(false);
+  }finally{
+    isSending=false;btn.disabled=false;btn.textContent='Ask';input.focus();scrollChat();
+  }
+}
+
+function setServerStatus(online){
+  const el=$('serverStatus');
+  el.classList.toggle('online',online);
+  el.classList.toggle('offline',!online);
+  $('statusText').textContent=online?'Server connected':'Server offline';
+}
+
+async function checkServer(){
+  try{
+    const r=await fetch(`${API_BASE}/`,{method:'GET',signal:AbortSignal.timeout(1800)});
+    setServerStatus(r.ok);
+  }catch(e){setServerStatus(false)}
+}
+
+function autoResize(){
+  const input=$('questionInput');
+  input.style.height='auto';
+  input.style.height=Math.min(input.scrollHeight,140)+'px';
+}
+
+$('questionInput').addEventListener('input',autoResize);
+$('accentColor').addEventListener('input',applyLivePreviewColors);
+$('botBg').addEventListener('input',applyLivePreviewColors);
+$('sidebarColor').addEventListener('input',applyLivePreviewColors);
+$('headerColor').addEventListener('input',applyLivePreviewColors);
+$('gradFrom').addEventListener('input',applyLivePreviewColors);
+$('gradTo').addEventListener('input',applyLivePreviewColors);
+$('questionInput').addEventListener('keydown',e=>{
+  if(e.key==='Enter' && !e.shiftKey){
+    e.preventDefault();
+    askQuestion();
+  }
+});
+
+window.addEventListener('resize',()=>{
+  if(window.innerWidth>800)closeMobileSidebar();
+});
+
+const QC_SEMESTERS = [
+  { label:'1st', word:'first', num:1 }, { label:'2nd', word:'second', num:2 },
+  { label:'3rd', word:'third', num:3 }, { label:'4th', word:'fourth', num:4 },
+  { label:'5th', word:'fifth', num:5 }, { label:'6th', word:'sixth', num:6 },
+  { label:'7th', word:'seventh', num:7 }, { label:'8th', word:'eighth', num:8 }
+];
+
+const QC_SUBJECTS_BY_SEMESTER = {
+  1: ['Programming for Problem Solving using C', 'Fundamentals of Information Technology', 'Web Technologies', 'Mathematical Foundation for Computer Science', 'Writing Skills', 'Understanding India', 'Bridge Course in Mathematics'],
+  2: ['Database Management System', 'Object Oriented Programming using Java', 'Data Structures and Algorithms', 'Software Engineering', 'Soft Skills', 'Environment Studies'],
+  3: [],
+  4: [],
+  5: ['Computer Networks', 'Artificial Intelligence', 'Natural Language Processing', 'Network Security', 'Full Stack Development using Java', 'Introduction to Management & Entrepreneurship Development']
+};
+
+let qcSelectedIntent = null;
+let qcSelectedSemester = null;
+
+function openQuickChat(){
+  qcSelectedIntent = null;
+  qcSelectedSemester = null;
+  qcRenderIntents();
+  $('qcOverlay').classList.add('show');
+}
+
+function closeQuickChat(evt){
+  if(evt && evt.target !== $('qcOverlay')) return;
+  $('qcOverlay').classList.remove('show');
+}
+
+function qcRenderIntents(){
+  $('qcTitle').textContent = 'Quick Chat';
+  $('qcSubtitle').textContent = 'What do you need?';
+  $('qcBackBtn').style.display = 'none';
+
+  const body = $('qcBody');
+  body.innerHTML = '';
+  QC_INTENTS.forEach(intent=>{
+    const btn=document.createElement('button');
+    btn.className='qc-option';
+    btn.innerHTML=`<span class="qc-option-icon">${intent.icon}</span>
+      <span class="qc-option-text">
+        <div class="qc-option-title">${intent.title}</div>
+        <div class="qc-option-sub">${intent.sub}</div>
+      </span>`;
+    btn.onclick=()=>qcRenderSemesters(intent);
+    body.appendChild(btn);
+  });
+}
+
+const QC_INTENTS = [
+  { id:'syllabus', icon:'📚', title:'Find Syllabus', sub:'Units and topics for a subject',
+    needsSubject:true, fullLabel:'Full Semester Syllabus', fullSub:'Every subject, unit by unit', subjectSub:'Unit-wise syllabus',
+    build:(w)=>`What is the full unit-wise syllabus for the ${w} semester?`,
+    buildSubject:(w,s)=>`What is the unit-wise syllabus for ${s} in the ${w} semester?` },
+  { id:'subjects', icon:'🗂️', title:'Find Subjects', sub:'All subjects offered in a semester',
+    needsSubject:false,
+    build:(w)=>`What subjects are there in the ${w} semester?` },
+  { id:'credits', icon:'🎓', title:'Credit Structure', sub:'Credits for a semester or one subject',
+    needsSubject:true, fullLabel:'Whole Semester Credits', fullSub:'Credit split across every subject', subjectSub:'Credits and L-T-C hours',
+    build:(w)=>`What is the credit structure for the ${w} semester?`,
+    buildSubject:(w,s)=>`How many credits does ${s} carry in the ${w} semester, and what are its L-T-C hours?` },
+  { id:'grading', icon:'📋', title:'Exam Rules & Marks', sub:'Marks split, CGPA, evaluation',
+    needsSubject:true, fullLabel:'Whole Semester Marks Scheme', fullSub:'Internal and external marks per subject', subjectSub:'Internal and external marks',
+    build:(w)=>`What is the internal and external marks scheme for every subject in the ${w} semester?`,
+    buildSubject:(w,s)=>`What are the internal and external marks for ${s} in the ${w} semester?` }
+];
+
+const QC_GENERAL_EXAM_QUESTION = 'How is CGPA calculated according to the exam ordinance?';
+
+function openQuickChatFor(intentId){
+  const intent = QC_INTENTS.find(i => i.id === intentId);
+  if(!intent){ openQuickChat(); return; }
+  qcSelectedSemester = null;
+  qcRenderSemesters(intent);
+  $('qcOverlay').classList.add('show');
+}
+
+function qcGoBack(){
+  if(qcSelectedIntent && qcSelectedIntent.needsSubject && qcSelectedSemester){
+    qcSelectedSemester = null;
+    qcRenderSemesters(qcSelectedIntent);
+  }else{
+    qcSelectedIntent = null;
+    qcSelectedSemester = null;
+    qcRenderIntents();
+  }
+}
+
+function qcSemesterChosen(sem){
+  qcSelectedSemester = sem;
+  if(qcSelectedIntent.needsSubject) qcRenderSubjects(sem);
+  else qcFinish(sem);
+}
+
+function qcRenderSemesters(intent){
+  qcSelectedIntent = intent;
+  qcSelectedSemester = null;
+  $('qcTitle').textContent = intent.title;
+  $('qcSubtitle').textContent = 'Which semester?';
+  $('qcBackBtn').style.display = 'grid';
+
+  const body = $('qcBody');
+  body.innerHTML = '<div class="qc-sem-grid" id="qcSemGrid"></div>';
+  const grid = $('qcSemGrid');
+  QC_SEMESTERS.forEach(sem=>{
+    const btn = document.createElement('button');
+    btn.className = 'qc-sem-btn';
+    btn.textContent = sem.label;
+    btn.onclick = ()=>qcSemesterChosen(sem);
+    grid.appendChild(btn);
+  });
+
+  if(intent.id === 'grading'){
+    const general = document.createElement('button');
+    general.className = 'qc-option';
+    general.style.marginTop = '12px';
+    general.innerHTML = `<span class="qc-option-icon">⚖️</span>
+      <span class="qc-option-text">
+        <div class="qc-option-title">General exam rules</div>
+        <div class="qc-option-sub">CGPA, grading, passing criteria</div>
+      </span>`;
+    general.onclick = ()=>{
+      $('qcOverlay').classList.remove('show');
+      usePrompt(QC_GENERAL_EXAM_QUESTION);
+    };
+    body.appendChild(general);
+  }
+}
+
+function qcRenderSubjects(sem){
+  const intent = qcSelectedIntent;
+  $('qcTitle').textContent = intent.title;
+  $('qcSubtitle').textContent = `${sem.label} semester — which subject?`;
+  $('qcBackBtn').style.display = 'grid';
+
+  const body = $('qcBody');
+  body.innerHTML = '';
+
+  const fullBtn = document.createElement('button');
+  fullBtn.className = 'qc-option';
+  fullBtn.innerHTML = `<span class="qc-option-icon">📖</span>
+    <span class="qc-option-text">
+      <div class="qc-option-title">${intent.fullLabel}</div>
+      <div class="qc-option-sub">${intent.fullSub}</div>
+    </span>`;
+  fullBtn.onclick = ()=>qcFinish(sem);
+  body.appendChild(fullBtn);
+
+  const subjects = QC_SUBJECTS_BY_SEMESTER[sem.num] || [];
+  subjects.forEach(subject=>{
+    const btn = document.createElement('button');
+    btn.className = 'qc-option';
+    btn.innerHTML = `<span class="qc-option-icon">📘</span>
+      <span class="qc-option-text">
+        <div class="qc-option-title">${subject}</div>
+        <div class="qc-option-sub">${intent.subjectSub}</div>
+      </span>`;
+    btn.onclick = ()=>qcFinishSubject(sem, subject);
+    body.appendChild(btn);
+  });
+
+  if(!subjects.length){
+    const note = document.createElement('div');
+    note.style.cssText = 'font-size:11.5px;color:var(--muted);text-align:center;padding:12px 6px 2px;line-height:1.5';
+    note.textContent = "Individual subjects for this semester aren't listed yet — use the first option above, or just type the subject name in chat.";
+    body.appendChild(note);
+  }
+}
+
+function qcFinishSubject(sem, subject){
+  const question = qcSelectedIntent.buildSubject(sem.word, subject);
+  $('qcOverlay').classList.remove('show');
+  usePrompt(question);
+}
+
+function qcFinish(sem){
+  const question = qcSelectedIntent.build(sem.word);
+  $('qcOverlay').classList.remove('show');
+  usePrompt(question);
+}
+
+let authSession = { token:null, username:null, role:null, name:null };
+let adminSession = { token:null, username:null, role:null };
+let signupEnabled = true;
+let authMode = 'login';
+let sessionUser = null;
+let pickedFile = null;
+
+class AuthExpiredError extends Error{
+  constructor(){ super('Session expired'); this.name = 'AuthExpired'; }
+}
+
+function setAppInert(on){
+  ['sidebar','main'].forEach(id => { const el = $(id); if(el) el.inert = on; });
+}
+
+function syncAdminSession(){
+  const isAdmin = authSession.role === 'admin' && !!authSession.token;
+  adminSession = isAdmin
+    ? { token:authSession.token, username:authSession.username, role:'admin' }
+    : { token:null, username:null, role:null };
+  $('navAdmin').style.display = isAdmin ? '' : 'none';
+  $('adminBadge').style.display = isAdmin ? 'block' : 'none';
+}
+
+function saveAuthSession(){
+  localStorage.setItem('nexus_auth', JSON.stringify(authSession));
+}
+
+function loadAuthSession(){
+  try{
+    const saved = JSON.parse(localStorage.getItem('nexus_auth') || 'null');
+    if(saved && saved.token) authSession = saved;
+  }catch(e){}
+}
+
+function clearAuthSession(){
+  authSession = { token:null, username:null, role:null, name:null };
+  localStorage.removeItem('nexus_auth');
+  syncAdminSession();
+}
+
+async function authFetch(url, options = {}){
+  const headers = Object.assign({}, options.headers || {});
+  if(authSession.token) headers['Authorization'] = `Bearer ${authSession.token}`;
+  const response = await fetch(url, Object.assign({}, options, { headers }));
+  if(response.status === 401){
+    forceLogin('Your session has ended. Please log in again.');
+    throw new AuthExpiredError();
+  }
+  return response;
+}
+
+function forceLogin(message){
+  clearAuthSession();
+  showAuthScreen(message);
+}
+
+function showAuthScreen(notice){
+  const screen = $('authScreen');
+  screen.classList.remove('auth-checking');
+  screen.style.display = 'flex';
+  setAppInert(true);
+  setAuthMode(authMode);
+  if(notice) showAuthError(notice, true);
+  setTimeout(() => $('authUsername').focus(), 60);
+}
+
+function hideAuthScreen(){
+  $('authScreen').style.display = 'none';
+  setAppInert(false);
+}
+
+function showAuthError(message, isNotice = false){
+  const el = $('authError');
+  el.textContent = message;
+  el.classList.toggle('notice', isNotice);
+  el.classList.add('show');
+}
+
+function hideAuthError(){
+  $('authError').classList.remove('show');
+}
+
+function applySignupAvailability(){
+  $('authTabSignup').style.display = signupEnabled ? '' : 'none';
+  if(!signupEnabled && authMode === 'signup') setAuthMode('login');
+  else $('authFoot').textContent = signupEnabled ? '' : 'Sign-ups are closed. Ask an admin for an account.';
+}
+
+function setAuthMode(mode){
+  if(mode === 'signup' && !signupEnabled) mode = 'login';
+  authMode = mode;
+  const signup = mode === 'signup';
+  $('authTabLogin').classList.toggle('active', !signup);
+  $('authTabSignup').classList.toggle('active', signup);
+  $('authTabLogin').setAttribute('aria-selected', String(!signup));
+  $('authTabSignup').setAttribute('aria-selected', String(signup));
+  $('authSignupFields').style.display = signup ? 'block' : 'none';
+  $('authConfirmWrap').style.display = signup ? 'block' : 'none';
+  $('authTitle').textContent = signup ? 'Create your account' : 'Welcome back';
+  $('authSub').textContent = signup
+    ? 'Sign up to use the syllabus assistant. It takes about a minute.'
+    : 'Log in to use the syllabus assistant.';
+  $('authSubmit').textContent = signup ? 'Create account' : 'Log in';
+  $('authPassword').setAttribute('autocomplete', signup ? 'new-password' : 'current-password');
+  $('authPassword').placeholder = signup ? 'At least 8 characters' : 'Your password';
+  $('authFoot').textContent = signupEnabled ? '' : 'Sign-ups are closed. Ask an admin for an account.';
+  hideAuthError();
+}
+
+function toggleAuthPassword(){
+  const show = $('authPassword').type === 'password';
+  $('authPassword').type = show ? 'text' : 'password';
+  $('authConfirm').type = show ? 'text' : 'password';
+  $('authEye').textContent = show ? 'Hide' : 'Show';
+}
+
+async function submitAuth(e){
+  e.preventDefault();
+  const btn = $('authSubmit');
+  const username = $('authUsername').value.trim();
+  const password = $('authPassword').value;
+  hideAuthError();
+
+  if(!username || !password) return showAuthError('Enter your username and password.');
+
+  let body = { username, password };
+  if(authMode === 'signup'){
+    const name = $('authName').value.trim();
+    if(!name) return showAuthError('Please enter your name.');
+    if(!/^[A-Za-z0-9_.-]{3,30}$/.test(username)) return showAuthError('Username must be 3–30 characters: letters, numbers, dots, dashes or underscores.');
+    if(password.length < 8) return showAuthError('Password must be at least 8 characters.');
+    if(password !== $('authConfirm').value) return showAuthError('The two passwords do not match.');
+    body = { username, password, name, enrol:$('authEnrol').value.trim(), course:$('authCourse').value.trim() };
+  }
+
+  const idleLabel = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = authMode === 'signup' ? 'Creating account…' : 'Logging in…';
+  try{
+    const r = await fetch(`${API_BASE}/${authMode === 'signup' ? 'signup' : 'login'}`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body),
+      signal:AbortSignal.timeout(10000)
+    });
+    const data = await r.json().catch(() => ({}));
+    if(!r.ok){
+      showAuthError(data.error || 'Something went wrong. Please try again.');
+      return;
+    }
+    completeLogin(data);
+  }catch(err){
+    showAuthError('Could not reach the server. Make sure the backend is running at http://127.0.0.1:5001.');
+  }finally{
+    btn.disabled = false;
+    btn.textContent = idleLabel;
+  }
+}
+
+function adoptAccountProfile(data){
+  if(localStorage.getItem('nexus_profile_owner') === data.username) return;
+  localStorage.setItem('nexus_profile', JSON.stringify({ name:data.name || '', enrol:data.enrol || '', course:data.course || '' }));
+  localStorage.setItem('nexus_profile_owner', data.username);
+}
+
+function completeLogin(data){
+  const previousUser = sessionUser;
+  authSession = { token:data.token, username:data.username, role:data.role, name:data.name || data.username };
+  saveAuthSession();
+  adoptAccountProfile(data);
+
+  if(previousUser && previousUser !== data.username){
+    location.reload();
+    return;
+  }
+
+  sessionUser = data.username;
+  syncAdminSession();
+  hideAuthScreen();
+  $('authPassword').value = '';
+  $('authConfirm').value = '';
+  loadProfile();
+  showView('chat');
+  showToast(`Welcome, ${authSession.name}`);
+}
+
+async function restoreSession(){
+  setAppInert(true);
+  loadAuthSession();
+  syncAdminSession();
+
+  if(!authSession.token){
+    showAuthScreen();
+    return;
+  }
+
+  try{
+    const r = await fetch(`${API_BASE}/me`, {
+      headers:{ 'Authorization': `Bearer ${authSession.token}` },
+      signal:AbortSignal.timeout(5000)
+    });
+    if(r.ok){
+      const data = await r.json();
+      authSession.name = data.name;
+      saveAuthSession();
+      adoptAccountProfile(data);
+    }else if(r.status === 401){
+      clearAuthSession();
+      showAuthScreen('Your session has ended. Please log in again.');
+      return;
+    }
+  }catch(e){}
+
+  sessionUser = authSession.username;
+  syncAdminSession();
+  hideAuthScreen();
+  loadProfile();
+}
+
+function logout(){
+  clearAuthSession();
+  location.reload();
+}
+
+function adminLogout(){
+  logout();
+}
+
+async function verifyAdminSession(){
+  if(!adminSession.token) return false;
+  try{
+    const r = await fetch(`${API_BASE}/admin/verify`, {
+      headers: { 'Authorization': `Bearer ${adminSession.token}` },
+      signal: AbortSignal.timeout(4000)
+    });
+    if(r.status === 401){
+      forceLogin('Your session has ended. Please log in again.');
+      return false;
+    }
+    return r.ok;
+  }catch(e){}
+  return false;
+}
+
+async function renderAdminView(){
+  const card = $('adminCard');
+
+  if(authSession.role !== 'admin'){
+    card.innerHTML = '<div class="admin-login-icon">🛡️</div><h2>Admins only</h2><p class="lead" style="margin:0">Your account does not have admin access.</p>';
+    return;
+  }
+
+  card.innerHTML = '<p class="lead" style="margin:0">Checking session…</p>';
+  const valid = await verifyAdminSession();
+  if(valid){
+    await loadBranding();
+    renderAdminPanel();
+  }else{
+    card.innerHTML = '<p class="lead" style="margin:0">Could not verify your admin session. Make sure the server is running, then open this page again.</p>';
+  }
+}
+
+function renderAdminPanel(){
+  const card = $('adminCard');
+  card.innerHTML = `
+    <div class="admin-topbar">
+      <div class="admin-topbar-left">
+        <div class="avatar-sm">${adminSession.username.charAt(0).toUpperCase()}</div>
+        <div>
+          <div class="admin-username">${adminSession.username}</div>
+          <span class="role-badge">🛡️ Admin</span>
+        </div>
+      </div>
+      <button class="ghost" style="flex:0 0 auto;padding:8px 14px" onclick="adminLogout()">Log Out</button>
+    </div>
+
+    <h2 style="margin-top:0">Assistant Branding</h2>
+    <p class="lead">Change the AI's name and tagline anytime — updates everywhere in the app instantly, no restart needed.</p>
+
+    <label for="brandNameInput">AI Name</label>
+    <input type="text" id="brandNameInput" placeholder="e.g. NEXUS" maxlength="40" value="${escapeAttr(branding.name)}">
+
+    <label for="brandTaglineInput">Tagline <span style="text-transform:none;font-weight:600;letter-spacing:0">(optional)</span></label>
+    <input type="text" id="brandTaglineInput" placeholder="e.g. Syllabus Assistant — leave blank for none" maxlength="100" value="${escapeAttr(branding.tagline)}">
+
+    <div class="field-error" id="brandingError"></div>
+
+    <div class="view-actions">
+      <button class="primary" id="brandingSaveBtn" onclick="saveBranding()">Save Branding</button>
+    </div>
+
+    <h2>Add a Syllabus PDF</h2>
+    <p class="lead">Upload a PDF and it's chunked, embedded, and added to the chatbot's knowledge base immediately — no server restart needed.</p>
+
+    <div class="dropzone" id="dropzone" onclick="$('fileInput').click()">
+      <div class="dropzone-icon">📄</div>
+      <div class="dropzone-title">Click to browse, or drag a PDF here</div>
+      <div class="dropzone-sub">PDF only · up to 25 MB</div>
+      <input type="file" id="fileInput" accept="application/pdf">
+    </div>
+    <div id="pickedFileRow"></div>
+    <div class="upload-status" id="uploadStatus"></div>
+
+    <div class="view-actions">
+      <button class="primary" id="uploadBtn" onclick="uploadPdf()" disabled>Upload &amp; Index</button>
+    </div>
+
+    <div class="doc-list-header">
+      <h3>Indexed Documents</h3>
+      <button class="refresh-btn" onclick="loadAdminDocuments()">↻ Refresh</button>
+    </div>
+    <div id="docList"><div class="doc-empty">Loading…</div></div>
+  `;
+
+  const dz = $('dropzone');
+  const fileInput = $('fileInput');
+
+  fileInput.addEventListener('change', ()=>{
+    if(fileInput.files[0]) setPickedFile(fileInput.files[0]);
+  });
+  dz.addEventListener('dragover', e=>{ e.preventDefault(); dz.classList.add('dragover'); });
+  dz.addEventListener('dragleave', ()=> dz.classList.remove('dragover'));
+  dz.addEventListener('drop', e=>{
+    e.preventDefault();
+    dz.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if(file) setPickedFile(file);
+  });
+
+  loadAdminDocuments();
+}
+
+function setPickedFile(file){
+  if(!file.name.toLowerCase().endsWith('.pdf')){
+    showToast('Please choose a PDF file');
+    return;
+  }
+  pickedFile = file;
+  const sizeKb = (file.size/1024).toFixed(0);
+  $('pickedFileRow').innerHTML = `
+    <div class="picked-file">
+      <span class="pf-icon">📄</span>
+      <span class="pf-name">${file.name} · ${sizeKb} KB</span>
+      <button class="pf-remove" onclick="clearPickedFile()" title="Remove" aria-label="Remove file">✕</button>
+    </div>`;
+  $('uploadBtn').disabled = false;
+}
+
+async function saveBranding(){
+  const nameInput = $('brandNameInput');
+  const taglineInput = $('brandTaglineInput');
+  const errEl = $('brandingError');
+  const btn = $('brandingSaveBtn');
+
+  const name = nameInput.value.trim();
+  const tagline = taglineInput.value.trim();
+
+  errEl.classList.remove('show');
+  if(!name){
+    errEl.textContent = 'Name cannot be empty.';
+    errEl.classList.add('show');
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try{
+    const r = await fetch(`${API_BASE}/admin/branding`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${adminSession.token}`
+      },
+      body: JSON.stringify({ name, tagline }),
+      signal: AbortSignal.timeout(8000)
+    });
+    const data = await r.json();
+
+    if(!r.ok){
+      errEl.textContent = data.error || 'Could not save branding.';
+      errEl.classList.add('show');
+      return;
+    }
+
+    applyBranding(data);
+    showToast('Branding updated');
+  }catch(e){
+    errEl.textContent = 'Could not reach the server.';
+    errEl.classList.add('show');
+  }finally{
+    btn.disabled = false; btn.textContent = 'Save Branding';
+  }
+}
+
+function clearPickedFile(){
+  pickedFile = null;
+  $('pickedFileRow').innerHTML = '';
+  $('fileInput').value = '';
+  $('uploadBtn').disabled = true;
+}
+
+async function uploadPdf(){
+  if(!pickedFile) return;
+  const btn = $('uploadBtn');
+  const statusEl = $('uploadStatus');
+
+  btn.disabled = true; btn.textContent = 'Uploading & indexing…';
+  statusEl.className = 'upload-status show info';
+  statusEl.textContent = 'Uploading and indexing — this can take a moment for larger PDFs.';
+
+  const formData = new FormData();
+  formData.append('file', pickedFile);
+
+  try{
+    const r = await fetch(`${API_BASE}/admin/upload`, {
+      method:'POST',
+      headers:{ 'Authorization': `Bearer ${adminSession.token}` },
+      body: formData
+    });
+    const data = await r.json();
+
+    if(!r.ok){
+      statusEl.className = 'upload-status show error';
+      statusEl.textContent = data.error || 'Upload failed.';
+      return;
+    }
+
+    statusEl.className = 'upload-status show success';
+    const codes = (data.course_codes_found || []).join(', ') || 'none detected';
+    statusEl.textContent = `${data.message} ${data.chunks_added} chunks added. Course codes found: ${codes}.`;
+    showToast('Document indexed');
+    clearPickedFile();
+    loadAdminDocuments();
+  }catch(e){
+    statusEl.className = 'upload-status show error';
+    statusEl.textContent = 'Could not reach the server during upload.';
+  }finally{
+    btn.disabled = pickedFile ? false : true;
+    btn.textContent = 'Upload & Index';
+  }
+}
+
+async function loadAdminDocuments(){
+  const listEl = $('docList');
+  if(!listEl) return;
+  listEl.innerHTML = '<div class="doc-empty">Loading…</div>';
+
+  try{
+    const r = await fetch(`${API_BASE}/admin/documents`, {
+      headers:{ 'Authorization': `Bearer ${adminSession.token}` },
+      signal: AbortSignal.timeout(6000)
+    });
+    if(!r.ok){
+      listEl.innerHTML = '<div class="doc-empty">Could not load documents.</div>';
+      return;
+    }
+    const data = await r.json();
+    if(!data.documents || !data.documents.length){
+      listEl.innerHTML = '<div class="doc-empty">No documents indexed yet.</div>';
+      return;
+    }
+    listEl.innerHTML = data.documents.map(d => `
+      <div class="doc-row" data-source="${d.source}">
+        <div class="doc-row-left">
+          <span class="doc-icon">📄</span>
+          <span class="doc-name">${sourceLabels[d.source] || d.source}</span>
+        </div>
+        <div class="doc-row-right">
+          <span class="doc-chunks">${d.chunks} chunks</span>
+          <button class="doc-action-btn doc-action-danger" title="Delete document" aria-label="Delete ${d.source}" onclick="openDeleteConfirm('${d.source.replace(/'/g,"\\'")}')">🗑️</button>
+        </div>
+      </div>
+    `).join('');
+  }catch(e){
+    listEl.innerHTML = '<div class="doc-empty">Could not reach the server.</div>';
+  }
+}
+
+let pendingDeleteSource = null;
+
+function openDeleteConfirm(source){
+  pendingDeleteSource = source;
+  $('deleteConfirmText').textContent =
+    `This will permanently remove all indexed chunks for "${sourceLabels[source] || source}". This can't be undone.`;
+  $('deleteConfirmOverlay').classList.add('show');
+}
+
+function closeDeleteConfirm(evt){
+  if(evt && evt.target !== $('deleteConfirmOverlay')) return;
+  $('deleteConfirmOverlay').classList.remove('show');
+  pendingDeleteSource = null;
+}
+
+async function confirmDeleteDocument(){
+  if(!pendingDeleteSource) return;
+  const btn = $('deleteConfirmBtn');
+  btn.disabled = true; btn.textContent = 'Deleting…';
+
+  try{
+    const r = await fetch(`${API_BASE}/admin/documents/${encodeURIComponent(pendingDeleteSource)}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${adminSession.token}` },
+      signal: AbortSignal.timeout(8000)
+    });
+    const data = await r.json();
+
+    if(!r.ok){
+      showToast(data.error || 'Delete failed.');
+      return;
+    }
+
+    showToast(`Deleted ${data.chunks_removed} chunks`);
+    $('deleteConfirmOverlay').classList.remove('show');
+    pendingDeleteSource = null;
+    loadAdminDocuments();
+  }catch(e){
+    showToast('Could not reach the server.');
+  }finally{
+    btn.disabled = false; btn.textContent = 'Delete';
+  }
+}
+
+localStorage.removeItem('nexus_admin');
+loadProfile();
+loadTheme();
+loadSidebarState();
+showView('chat');
+checkServer();
+setInterval(checkServer,15000);
+loadBranding();
+restoreSession();
+
+let aiLabInitialized=false;
+let lastNexusAnswer='';
+let recognition=null;
+let isListening=false;
+let mediaRecorder=null;
+let recordedChunks=[];
+let voiceEffect='normal';
+
+function aiLabTab(tab){
+  document.querySelectorAll('.ai-lab-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  document.querySelectorAll('.ai-lab-panel').forEach(p=>p.classList.toggle('active',p.id==='aiPanel-'+tab));
+}
+function initAiLab(){
+  if(aiLabInitialized) return;
+  aiLabInitialized=true;
+  const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SpeechRecognition){
+    recognition=new SpeechRecognition(); recognition.lang='en-IN'; recognition.interimResults=true; recognition.continuous=false;
+    recognition.onstart=()=>{isListening=true; $('voiceOrb').classList.add('listening'); $('voiceStatus').textContent='Listening… speak now.'};
+    recognition.onresult=(e)=>{let finalText='';let interim='';for(const r of e.results){if(r.isFinal)finalText+=r[0].transcript;else interim+=r[0].transcript} $('voiceTranscript').textContent=(finalText||interim||''); if(finalText){$('questionInput').value=finalText; autoResize();}};
+    recognition.onerror=(e)=>{$('voiceStatus').textContent='Voice input error: '+e.error};
+    recognition.onend=()=>{isListening=false;$('voiceOrb').classList.remove('listening');if($('voiceStatus').textContent==='Listening… speak now.')$('voiceStatus').textContent='Ready.';};
+  } else $('voiceStatus').textContent='Speech recognition is not supported in this browser. Try Chrome or Edge.';
+}
+function toggleVoiceMode(){initAiLab();if(!recognition)return;if(isListening)recognition.stop();else recognition.start()}
+function speakText(text){if(!('speechSynthesis' in window)){showToast('Speech synthesis is not supported here.');return}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);u.rate=.96;u.pitch=1;speechSynthesis.speak(u)}
+function stopSpeaking(){if('speechSynthesis' in window)speechSynthesis.cancel()}
+function speakLastNexusAnswer(){if(lastNexusAnswer)speakText(lastNexusAnswer);else showToast('No NEXUS answer available yet.')}
+
+async function generateNexusImage(){
+  const prompt=$('imagePrompt').value.trim(); if(!prompt){showToast('Describe the image first.');return}
+  const out=$('imageOutput'); out.innerHTML='<div class="muted">✨ Generating image…</div>';
+  try{
+    const r=await authFetch(`${API_BASE}/generate-image`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt,style:$('imageStyle').value,aspect_ratio:$('imageRatio').value,image_size:$('imageSize').value})});
+    const data=await r.json(); if(!r.ok) throw new Error(data.error||'Image generation failed');
+    out.innerHTML=`<img src="${data.image}" alt="Generated by NEXUS"><div class="ai-actions" style="margin-top:10px"><a class="ai-primary" href="${data.image}" download="nexus-generated.png" style="text-decoration:none">⬇ Save Image</a><button class="ai-secondary" onclick="usePrompt('I generated an image for this prompt: ${escapeAttr(prompt)}')">💬 Discuss in Chat</button></div>`;
+  }catch(e){if(e.name==='AuthExpired'){out.innerHTML='<span class="muted">Your generated image will appear here.</span>';return}out.innerHTML=`<div style="color:var(--danger)">${escapeAttr(e.message)}</div><p class="muted">Make sure GEMINI_API_KEY is configured and your installed google-genai package supports the selected image model.</p>`}
+}
+
+async function toggleRecorder(){
+  if(mediaRecorder && mediaRecorder.state==='recording'){mediaRecorder.stop();return}
+  if(!navigator.mediaDevices?.getUserMedia){showToast('Microphone recording is not supported here.');return}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true}); recordedChunks=[]; mediaRecorder=new MediaRecorder(stream);
+    mediaRecorder.ondataavailable=e=>{if(e.data.size)recordedChunks.push(e.data)};
+    mediaRecorder.onstop=()=>{stream.getTracks().forEach(t=>t.stop());const blob=new Blob(recordedChunks,{type:mediaRecorder.mimeType||'audio/webm'});const url=URL.createObjectURL(blob);const audio=$('voicePreview');audio.src=url;audio.style.display='block';audio.dataset.blob=url; $('recordBtn').textContent='Record Again';applyVoiceEffectToAudio()};
+    mediaRecorder.start();$('recordBtn').textContent='⏹ Stop Recording';showToast('Recording started');
+  }catch(e){showToast('Microphone permission was denied or unavailable.')}
+}
+function setVoiceEffect(effect){voiceEffect=effect;document.querySelectorAll('.effect-btn').forEach(b=>b.classList.toggle('active',b.dataset.effect===effect));applyVoiceEffectToAudio()}
+function applyVoiceEffectToAudio(){const audio=$('voicePreview');if(!audio.src)return;const settings={normal:[1,0],deep:[.82,-.2],high:[1.22,.2],radio:[1.02,0],robot:[.86,.15],echo:[.98,0]}[voiceEffect]||[1,0];audio.playbackRate=settings[0];audio.preservesPitch=false;audio.onplay=()=>{if(voiceEffect==='radio'||voiceEffect==='robot'){try{const ctx=new AudioContext();const src=ctx.createMediaElementSource(audio);const filter=ctx.createBiquadFilter();filter.type=voiceEffect==='radio'?'bandpass':'highpass';filter.frequency.value=voiceEffect==='radio'?1200:650;filter.Q.value=voiceEffect==='radio'?0.8:0.6;src.connect(filter).connect(ctx.destination)}catch(e){}}};}
+
+if(typeof addMessage === 'function' && !window.__nexusAddMessageWrapped){
+  window.__nexusAddMessageWrapped = true;
+  const _originalAddMessage = addMessage;
+  addMessage = function(role, content, loading=false, sources=[]){
+    const result = _originalAddMessage(role, content, loading, sources);
+    if(role === 'bot' && !loading){
+      lastNexusAnswer = typeof content === 'string' ? content.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim() : '';
+    }
+    return result;
+  };
+}
+
+document.getElementById('navAiLab')?.addEventListener('click', function(){ showView('aiLab'); }, false);
+</script>
+</body>
+</html>
