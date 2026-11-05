@@ -39,6 +39,18 @@ splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
 client = chromadb.PersistentClient(path="./chroma_db")
 collection = client.get_or_create_collection(name="campus_docs")
 
+# ---- warm-up: do the heavy first-time work at boot, not during the first question ----
+print("[warmup] starting", flush=True)
+try:
+    _t = time.time()
+    model.encode("warm up")
+    print(f"[warmup] embedding model ready ({time.time() - _t:.1f}s)", flush=True)
+    _t = time.time()
+    retrieval._load_corpus(collection)
+    print(f"[warmup] corpus + keyword index ready ({time.time() - _t:.1f}s)", flush=True)
+except Exception as _e:
+    print(f"[warmup] failed: {_e}", flush=True)
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 ADMIN_FILE = os.path.join(BASE_DIR, "admins.json")
@@ -889,13 +901,19 @@ def ask():
     if limit_message:
         return jsonify({"answer": limit_message, "sources": [], "is_error": True}), 200
 
+    _t0 = time.time()
+    print(f"[ask] 1/5 received: {question[:60]!r}", flush=True)
+
     history = clean_history(data.get("history"))
     use_history = bool(history) and looks_like_followup(question)
     standalone = rewrite_followup(question, history)
+    print(f"[ask] 2/5 question rewritten ({time.time() - _t0:.1f}s)", flush=True)
 
     question_embedding = model.encode(standalone).tolist()
+    print(f"[ask] 3/5 embedded ({time.time() - _t0:.1f}s)", flush=True)
 
     hit_docs, hit_metas = retrieval.hybrid_search(collection, standalone, question_embedding)
+    print(f"[ask] 4/5 retrieval done, {len(hit_docs)} chunks ({time.time() - _t0:.1f}s)", flush=True)
     all_docs = list(hit_docs)
     all_metas = list(hit_metas)
 
@@ -986,8 +1004,10 @@ Academic Context:
 Answer:
 """
 
+    print(f"[ask] 5/5 calling Gemini, prompt {len(prompt)} chars ({time.time() - _t0:.1f}s)", flush=True)
     try:
         response = generate_with_retry(prompt)
+        print(f"[ask] done: Gemini replied ({time.time() - _t0:.1f}s)", flush=True)
         answer_text = response.text or "The model returned an empty response — please try rephrasing your question or asking about a narrower topic (e.g. one subject instead of a whole semester)."
         payload = {"answer": answer_text, "sources": sources, "citations": citations}
         if standalone != question:
