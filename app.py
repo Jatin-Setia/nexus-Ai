@@ -32,28 +32,64 @@ app.config["MAX_CONTENT_LENGTH"] = 25 * 1024 * 1024  # 25 MB upload cap
 
 client_genai = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-model = Embedder()
+class _PerProcess:
+    """Create heavy native objects (ONNX, ChromaDB) lazily, once per worker process.
+    If gunicorn imports the app in the master and then forks, these objects must NOT be
+    shared with the child -- their native threads/locks don't survive a fork and the
+    first query deadlocks. This builds a fresh one in whichever process first uses it."""
+
+    def __init__(self, factory):
+        self._factory = factory
+        self._pid = None
+        self._obj = None
+        self._lock = threading.Lock()
+
+    def _get(self):
+        if self._pid != os.getpid():
+            with self._lock:
+                if self._pid != os.getpid():
+                    self._obj = self._factory()
+                    self._pid = os.getpid()
+        return self._obj
+
+    def __getattr__(self, name):
+        return getattr(self._get(), name)
+
+
+model = _PerProcess(Embedder)
 
 splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
 
-client = chromadb.PersistentClient(path="./chroma_db")
-collection = client.get_or_create_collection(name="campus_docs")
+client = _PerProcess(lambda: chromadb.PersistentClient(path="./chroma_db"))
+collection = _PerProcess(lambda: client.get_or_create_collection(name="campus_docs"))
 
-# ---- warm-up: do the heavy first-time work at boot, not during the first question ----
-print("[warmup] starting", flush=True)
-try:
-    _t = time.time()
-    _warm_vec = model.encode("warm up").tolist()
-    print(f"[warmup] embedding model ready ({time.time() - _t:.1f}s)", flush=True)
-    _t = time.time()
-    retrieval._load_corpus(collection)
-    print(f"[warmup] corpus + keyword index ready ({time.time() - _t:.1f}s)", flush=True)
-    _t = time.time()
-    print("[warmup] loading vector index...", flush=True)
-    collection.query(query_embeddings=[_warm_vec], n_results=1)
-    print(f"[warmup] vector index ready ({time.time() - _t:.1f}s)", flush=True)
-except Exception as _e:
-    print(f"[warmup] failed: {_e}", flush=True)
+# ---- warm-up: runs once per worker process, on its first request (a health check is enough) ----
+_warmed_pid = None
+
+
+def _warm_up():
+    global _warmed_pid
+    if _warmed_pid == os.getpid():
+        return
+    _warmed_pid = os.getpid()
+    print(f"[warmup] starting in pid {os.getpid()}", flush=True)
+    try:
+        _t = time.time()
+        vec = model.encode("warm up").tolist()
+        print(f"[warmup] embedding model ready ({time.time() - _t:.1f}s)", flush=True)
+        _t = time.time()
+        retrieval._load_corpus(collection)
+        print(f"[warmup] corpus + keyword index ready ({time.time() - _t:.1f}s)", flush=True)
+        _t = time.time()
+        collection.query(query_embeddings=[vec], n_results=1)
+        print(f"[warmup] vector index ready ({time.time() - _t:.1f}s)", flush=True)
+    except Exception as e:
+        print(f"[warmup] failed: {e}", flush=True)
+
+
+@app.before_request
+def _warm_up_once():
+    _warm_up()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
