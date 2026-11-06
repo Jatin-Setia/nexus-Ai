@@ -111,7 +111,9 @@ def _get_reranker():
 
 def hybrid_search(collection, query, query_embedding, top_k=6, candidates=20):
     """Return (docs, metas) for the best `top_k` chunks."""
+    print("[search] loading corpus", flush=True)
     corpus = _load_corpus(collection)
+    print(f"[search] corpus ready, {len(corpus['ids'])} chunks", flush=True)
     if not corpus["ids"]:
         return [], []
 
@@ -122,8 +124,10 @@ def hybrid_search(collection, query, query_embedding, top_k=6, candidates=20):
         n_results=min(candidates, len(corpus["ids"])),
     )
     vector_ids = vec["ids"][0]
+    print("[search] vector query done", flush=True)
     keyword_ids = [corpus["ids"][i] for i in corpus["bm25"].top(_query_tokens(query), candidates)]
 
+    print("[search] keyword search done", flush=True)
     fused = defaultdict(float)
     for ranking in (vector_ids, keyword_ids):
         for rank, cid in enumerate(ranking):

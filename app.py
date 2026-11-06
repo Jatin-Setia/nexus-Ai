@@ -43,11 +43,15 @@ collection = client.get_or_create_collection(name="campus_docs")
 print("[warmup] starting", flush=True)
 try:
     _t = time.time()
-    model.encode("warm up")
+    _warm_vec = model.encode("warm up").tolist()
     print(f"[warmup] embedding model ready ({time.time() - _t:.1f}s)", flush=True)
     _t = time.time()
     retrieval._load_corpus(collection)
     print(f"[warmup] corpus + keyword index ready ({time.time() - _t:.1f}s)", flush=True)
+    _t = time.time()
+    print("[warmup] loading vector index...", flush=True)
+    collection.query(query_embeddings=[_warm_vec], n_results=1)
+    print(f"[warmup] vector index ready ({time.time() - _t:.1f}s)", flush=True)
 except Exception as _e:
     print(f"[warmup] failed: {_e}", flush=True)
 
