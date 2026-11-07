@@ -743,13 +743,13 @@ FOLLOWUP_WORDS = re.compile(
     re.IGNORECASE,
 )
 
-REWRITE_PROMPT = """You rewrite a student's latest message so it can be understood WITHOUT the earlier conversation.
+REWRITE_PROMPT = """You rewrite a user's latest message so it can be understood WITHOUT the earlier conversation.
 
 Rules:
-- Use the conversation only to resolve references such as "it", "that subject", "Unit 2", "what about sem 3".
-- Keep subject names, semester numbers and unit numbers explicit in the rewritten question.
+- Use the conversation only to resolve references such as "it", "that document", "section 2", "what about the second one".
+- Keep document names, topics, section numbers and other specifics explicit in the rewritten question.
 - If the latest message is already clear on its own, return it unchanged.
-- Do not answer the question. Do not add anything the student did not ask for.
+- Do not answer the question. Do not add anything the user did not ask for.
 - Output ONLY the rewritten question, on a single line.
 
 Conversation so far:
@@ -778,7 +778,7 @@ def clean_history(raw):
 
 def format_history(history):
     return "\n".join(
-        f"{'Student' if m['role'] == 'user' else 'Assistant'}: {m['content']}" for m in history
+        f"{'User' if m['role'] == 'user' else 'Assistant'}: {m['content']}" for m in history
     )
 
 
@@ -811,12 +811,12 @@ def rewrite_followup(question, history):
 
 
 STUDY_ACTION_INSTRUCTIONS = {
-    "ask": "Answer the student's question directly and clearly using the academic context.",
+    "ask": "Answer the user's question directly and clearly using the document context.",
     "explain": "Explain the topic in a simple, beginner-friendly way. Use short paragraphs and include at least one concrete example.",
     "summarize": "Produce concise, well-organized revision notes on the topic using Markdown headings and bullet points. Keep it scannable, not long paragraphs.",
     "quiz": "Create a short practice quiz (around 5 questions) on the topic. Put the correct answer and a one-line explanation directly under each question.",
     "flashcards": "Create around 8 flashcards on the topic. Format each as '**Q:** ...' on one line followed by '**A:** ...' on the next, covering key definitions and concepts.",
-    "important": "Identify and list the most important topics or subtopics a student should prioritize revising, based only on what's in the academic context. Briefly say why each one matters.",
+    "important": "Identify and list the most important topics or subtopics a reader should focus on, based only on what's in the document context. Briefly say why each one matters.",
 }
 
 WRITTEN_SEMESTERS = {
@@ -903,18 +903,18 @@ def study_session():
     instruction = STUDY_ACTION_INSTRUCTIONS[action]
 
     prompt = f"""
-You are {ai_name}, an academic study assistant for BCA students.
+You are {ai_name}, an assistant that answers questions and builds study aids from the user's uploaded documents.
 
 Task: {instruction}
 
-Use ONLY the academic context provided below — do not invent information that isn't in it.
+Use ONLY the document context provided below — do not invent information that isn't in it.
 If the context doesn't cover the topic, clearly say so instead of guessing.
 Format the response with Markdown (headings/bullets) where it helps readability.
 
-Academic Context:
+Document Context:
 {context}
 
-Student's topic / question:
+User's topic / question:
 {question}
 
 Response:
@@ -1020,25 +1020,25 @@ def ask():
     )
 
     prompt = f"""
-You are {ai_name}, an academic assistant for BCA students.
+You are {ai_name}, an assistant that answers questions using the user's uploaded documents.
 
-Answer the student's question using ONLY the academic context provided below.
+Answer the user's question using ONLY the document context provided below.
 
 Rules:
 - Do not invent information.
-- If the answer is not present in the context, clearly say that the information could not be found in the available academic documents.
-- Prefer information that directly matches the student's semester, subject, course code, or topic.
+- If the answer is not present in the context, clearly say that the information could not be found in the uploaded documents.
+- Prefer information that directly matches the topic, section, or terms in the user's question.
 - If multiple relevant pieces of information are available, combine them clearly.
-- When discussing syllabus information, preserve the Unit structure where possible.
-- When discussing credits, clearly identify the subject and credit value.
-- Cite your sources inline in square brackets using the file name and page from the context headers, e.g. [BCA_1st_year.pdf, p. 3] or [BCASYL.pdf, pp. 11-12]. Only cite pages that appear in the context headers; never guess a page number. If a context block has no page, cite just the file name.
-- Keep the answer clear, organized, and easy for a BCA student to understand.
-- Earlier messages are only there to help you understand the question. Never treat earlier assistant replies as facts: check everything against the Academic Context.
+- Preserve the original structure (headings, sections, lists, tables) of the source where it helps.
+- When quoting figures, dates, or names, state exactly what the source says.
+- Cite your sources inline in square brackets using the file name and page from the context headers, e.g. [report.pdf, p. 3] or [handbook.pdf, pp. 11-12]. Only cite pages that appear in the context headers; never guess a page number. If a context block has no page, cite just the file name.
+- Keep the answer clear, organized, and easy to understand.
+- Earlier messages are only there to help you understand the question. Never treat earlier assistant replies as facts: check everything against the Document Context.
 
-Academic Context:
+Document Context:
 {context}
 
-{history_block}Student Question:
+{history_block}User Question:
 {standalone}
 
 Answer:

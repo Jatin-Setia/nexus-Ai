@@ -5,7 +5,9 @@ import os
 
 import indexer
 
-pdf_files = ["BCASYL.pdf", "Ordinance11.pdf", "BCA_5th_Sem.pdf", "BCA_1st_year.pdf", "BCA_2nd_year.pdf", "N_Queen_Problem_AI_Detailed_Notes.pdf"]
+# Index every PDF in the project folder (or pass file names: python3 build_index.py a.pdf b.pdf)
+import sys
+pdf_files = sys.argv[1:] or sorted(f for f in os.listdir(".") if f.lower().endswith(".pdf"))
 
 splitter = RecursiveCharacterTextSplitter(chunk_size=1500, chunk_overlap=200)
 model = Embedder()
@@ -23,8 +25,8 @@ for pdf_file in pdf_files:
         print(f"Skipping {pdf_file} — file not found.")
         continue
 
-    count, courses = indexer.index_pdf_into_collection(pdf_file, pdf_file, collection, model, splitter)
+    count, _ = indexer.index_pdf_into_collection(pdf_file, pdf_file, collection, model, splitter)
     total_chunks += count
-    print(f"{pdf_file}: {count} chunks ({len(courses)} course codes found)")
+    print(f"{pdf_file}: {count} chunks ")
 
 print(f"\nTotal: {total_chunks} chunks stored from {len(pdf_files)} documents.")

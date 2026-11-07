@@ -1,5 +1,5 @@
 """
-Hybrid retrieval for Campus AI:
+Hybrid retrieval for NEXUS AI:
   1. vector search (Chroma) + keyword search (BM25) over the same chunks
   2. merge both rankings with Reciprocal Rank Fusion (RRF)
   3. rerank the merged candidates with a cross-encoder

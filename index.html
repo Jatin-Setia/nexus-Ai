@@ -781,7 +781,7 @@ html[data-theme="dark"] .auth-card{border-color:color-mix(in srgb,var(--accent) 
     <div class="avatar-sm" id="avatarLetterSm">J</div>
     <div class="sidebar-footer-text">
       <div class="name" id="footerName">Your name</div>
-      <div class="course" id="footerCourse">BCA · DBIT</div>
+      <div class="course" id="footerCourse"></div>
     </div>
   </div>
 </aside>
@@ -806,20 +806,20 @@ html[data-theme="dark"] .auth-card{border-color:color-mix(in srgb,var(--accent) 
       <div class="welcome" id="welcome">
         <div class="welcome-logo" id="welcomeLogoLetter">N</div>
         <h2>What do you want to know?</h2>
-        <p>Ask about the DBIT BCA syllabus, subjects, units, credits, topics, or exam rules from your connected academic documents.</p>
+        <p>Ask anything about the documents that have been uploaded. Answers come straight from the PDFs, with the file and page cited.</p>
         <div class="quick-grid">
-          <button class="quick-btn c-teal" onclick="openQuickChatFor('credits')">
-            <div class="quick-title">🎓 Credit structure</div><div class="quick-sub">Pick a semester or subject</div>
-          </button>
-          <button class="quick-btn c-blue" onclick="openQuickChatFor('subjects')">
-            <div class="quick-title">📚 Semester subjects</div><div class="quick-sub">Pick a semester</div>
-          </button>
-          <button class="quick-btn c-plum" onclick="openQuickChatFor('syllabus')">
-            <div class="quick-title">🗂️ Find a syllabus</div><div class="quick-sub">Pick a semester, then a subject</div>
-          </button>
-          <button class="quick-btn c-amber" onclick="openQuickChatFor('grading')">
-            <div class="quick-title">📋 Exam rules</div><div class="quick-sub">Marks, CGPA, evaluation</div>
-          </button>
+          <button class="quick-btn c-teal" onclick="openQuickChatFor('summary')">
+          <div class="quick-title">📄 Summarize a document</div><div class="quick-sub">Get the main points</div>
+        </button>
+        <button class="quick-btn c-blue" onclick="openQuickChatFor('find')">
+          <div class="quick-title">🔎 Find a topic</div><div class="quick-sub">Locate it and see the page</div>
+        </button>
+        <button class="quick-btn c-plum" onclick="openQuickChatFor('keypoints')">
+          <div class="quick-title">🗂️ Key points</div><div class="quick-sub">Headings, lists and figures</div>
+        </button>
+        <button class="quick-btn c-amber" onclick="openQuickChatFor('define')">
+          <div class="quick-title">📖 Explain a term</div><div class="quick-sub">As the document defines it</div>
+        </button>
         </div>
       </div>
     </div>
@@ -842,21 +842,21 @@ html[data-theme="dark"] .auth-card{border-color:color-mix(in srgb,var(--accent) 
 
     <div class="ai-lab-panel active" id="aiPanel-hub">
       <div class="ai-grid">
-        <div class="ai-tool-card" onclick="aiLabTab('study')"><div class="ai-tool-icon">🧠</div><h3>Study Session</h3><p>Explain topics, make notes, quizzes and flashcards from your syllabus.</p></div>
-        <div class="ai-tool-card" onclick="aiLabTab('image')"><div class="ai-tool-icon">🖼️</div><h3>Image Studio</h3><p>Generate academic diagrams, illustrations, posters and creative visuals from prompts.</p></div>
+        <div class="ai-tool-card" onclick="aiLabTab('study')"><div class="ai-tool-icon">🧠</div><h3>Study Session</h3><p>Explain topics, make notes, quizzes and flashcards from your documents.</p></div>
+        <div class="ai-tool-card" onclick="aiLabTab('image')"><div class="ai-tool-icon">🖼️</div><h3>Image Studio</h3><p>Generate diagrams, illustrations, posters and creative visuals from prompts.</p></div>
         <div class="ai-tool-card" onclick="aiLabTab('voice')"><div class="ai-tool-icon">🎙️</div><h3>Talk to NEXUS</h3><p>Speak naturally, send the transcript to your existing AI backend and hear the response.</p></div>
         <div class="ai-tool-card" onclick="aiLabTab('voiceLab')"><div class="ai-tool-icon">🔊</div><h3>Voice Lab</h3><p>Record audio and preview pitch, speed, radio, robot and echo-style effects locally.</p></div>
-        <div class="ai-tool-card" onclick="usePrompt('Create concise exam notes for the topic I am studying.')"><div class="ai-tool-icon">📝</div><h3>Notes Generator</h3><p>Use the existing NEXUS chat brain to generate focused study notes.</p></div>
-        <div class="ai-tool-card" onclick="usePrompt('Generate a 10-question quiz from the syllabus topic I provide, with answers and explanations.')"><div class="ai-tool-icon">🧪</div><h3>Quiz Generator</h3><p>Generate practice questions directly through your current AI chat workflow.</p></div>
+        <div class="ai-tool-card" onclick="usePrompt('Create concise notes on the topic I provide, based on the documents.')"><div class="ai-tool-icon">📝</div><h3>Notes Generator</h3><p>Use the existing NEXUS chat brain to generate focused notes.</p></div>
+        <div class="ai-tool-card" onclick="usePrompt('Generate a 10-question quiz from the topic I provide, with answers and explanations.')"><div class="ai-tool-icon">🧪</div><h3>Quiz Generator</h3><p>Generate practice questions directly through your current AI chat workflow.</p></div>
       </div>
     </div>
 
     <div class="ai-lab-panel" id="aiPanel-image">
       <div class="ai-form">
         <label>Describe the image</label>
-        <textarea id="imagePrompt" rows="5" placeholder="Example: A clean academic infographic explaining supervised vs unsupervised learning, dark futuristic NEXUS style, readable labels."></textarea>
+        <textarea id="imagePrompt" rows="5" placeholder="Example: A clean infographic explaining supervised vs unsupervised learning, dark futuristic NEXUS style, readable labels."></textarea>
         <div class="ai-row">
-          <div><label>Style</label><select id="imageStyle"><option>Academic infographic</option><option>Modern illustration</option><option>3D render</option><option>Anime-inspired</option><option>Cyber futuristic</option><option>Minimal poster</option></select></div>
+          <div><label>Style</label><select id="imageStyle"><option>Infographic</option><option>Modern illustration</option><option>3D render</option><option>Anime-inspired</option><option>Cyber futuristic</option><option>Minimal poster</option></select></div>
           <div><label>Aspect ratio</label><select id="imageRatio"><option>1:1</option><option>16:9</option><option>9:16</option><option>4:3</option><option>3:2</option></select></div>
           <div><label>Resolution</label><select id="imageSize"><option>1K</option><option>2K</option><option>4K</option></select></div>
         </div>
@@ -892,11 +892,6 @@ html[data-theme="dark"] .auth-card{border-color:color-mix(in srgb,var(--accent) 
         <p>Focused AI study tools. Your prompts and answers stay here — nothing is added to the main chat.</p>
       </div>
       <div class="study-session-controls">
-        <select id="studySemester" class="study-session-select" aria-label="Study semester">
-          <option value="">All semesters</option><option value="1">1st semester</option><option value="2">2nd semester</option>
-          <option value="3">3rd semester</option><option value="4">4th semester</option><option value="5">5th semester</option>
-          <option value="6">6th semester</option><option value="7">7th semester</option><option value="8">8th semester</option>
-        </select>
         <button class="ghost" onclick="clearStudySession()">Clear</button>
       </div>
     </div>
@@ -910,7 +905,7 @@ html[data-theme="dark"] .auth-card{border-color:color-mix(in srgb,var(--accent) 
     </div>
 
     <div class="study-prompt-row">
-          <textarea id="studyPrompt" placeholder="What do you want to study? e.g. Explain Unit 2 of Artificial Intelligence…" aria-label="Study prompt"></textarea>
+          <textarea id="studyPrompt" placeholder="What do you want to work on? e.g. Explain section 2 of the uploaded report…" aria-label="Study prompt"></textarea>
           <button class="study-run-btn" id="studyRunBtn" onclick="runStudySession('ask')">Run Study AI</button>
         </div>
 
@@ -923,10 +918,10 @@ html[data-theme="dark"] .auth-card{border-color:color-mix(in srgb,var(--accent) 
     <div class="ai-lab-panel" id="aiPanel-tools">
       <div class="ai-grid">
         <div class="ai-tool-card" onclick="usePrompt('Explain the next topic I provide like I am a beginner, then give one example and three questions.')"><div class="ai-tool-icon">🧑‍🏫</div><h3>Explain Simply</h3><p>Beginner-friendly teaching with examples and checks.</p></div>
-        <div class="ai-tool-card" onclick="usePrompt('Turn the next syllabus topic I provide into concise exam notes with headings, definitions and important points.')"><div class="ai-tool-icon">📝</div><h3>Exam Notes</h3><p>Structured revision notes for syllabus topics.</p></div>
-        <div class="ai-tool-card" onclick="usePrompt('Create a 10-question mixed quiz from the next syllabus topic I provide. Include answers and short explanations.')"><div class="ai-tool-icon">🧪</div><h3>Quiz Me</h3><p>Practice questions with explanations.</p></div>
+        <div class="ai-tool-card" onclick="usePrompt('Turn the next topic I provide into concise notes with headings, definitions and important points.')"><div class="ai-tool-icon">📝</div><h3>Study Notes</h3><p>Structured notes with headings, definitions and key points.</p></div>
+        <div class="ai-tool-card" onclick="usePrompt('Create a 10-question mixed quiz from the next topic I provide. Include answers and short explanations.')"><div class="ai-tool-icon">🧪</div><h3>Quiz Me</h3><p>Practice questions with explanations.</p></div>
         <div class="ai-tool-card" onclick="usePrompt('Review the code I provide, explain the bug, then give the corrected version and explain the fix.')"><div class="ai-tool-icon">💻</div><h3>Code Coach</h3><p>Debugging, explanations and improvements through chat.</p></div>
-        <div class="ai-tool-card" onclick="usePrompt('Create a presentation outline for the next academic topic I provide, with slide titles and key points.')"><div class="ai-tool-icon">📊</div><h3>Presentation Planner</h3><p>Turn topics into clean presentation structures.</p></div>
+        <div class="ai-tool-card" onclick="usePrompt('Create a presentation outline for the next topic I provide, with slide titles and key points.')"><div class="ai-tool-icon">📊</div><h3>Presentation Planner</h3><p>Turn topics into clean presentation structures.</p></div>
         <div class="ai-tool-card" onclick="usePrompt('Act as a technical interviewer. Ask me one question at a time and evaluate my answers.')"><div class="ai-tool-icon">🎯</div><h3>Interview Mode</h3><p>Practice technical interview conversations.</p></div>
       </div>
     </div>
@@ -949,8 +944,8 @@ html[data-theme="dark"] .auth-card{border-color:color-mix(in srgb,var(--accent) 
           <input type="text" id="profEnrol" placeholder="Optional" autocomplete="off">
         </div>
         <div class="full">
-          <label for="profCourse">Course / Year</label>
-          <input type="text" id="profCourse" placeholder="e.g. BCA · 3rd Year">
+          <label for="profCourse">Role / Organisation</label>
+          <input type="text" id="profCourse" placeholder="e.g. Analyst · Acme Corp">
         </div>
       </div>
       <div class="view-actions">
@@ -1020,17 +1015,17 @@ html[data-theme="dark"] .auth-card{border-color:color-mix(in srgb,var(--accent) 
   <section class="view" id="view-about">
     <div class="view-card">
       <h2 id="aboutHeading">About NEXUS</h2>
-      <p class="lead">A focused academic assistant interface for the DBIT BCA syllabus project.</p>
-      <p class="about-line"><b>What it is:</b> An AI assistant designed to answer questions about the DBIT BCA syllabus using retrieval-augmented generation.</p>
-      <p class="about-line"><b>How it works:</b> A student's question is converted into an embedding, matched against relevant document chunks using semantic search, and then passed to an LLM to generate a grounded response.</p>
-      <p class="about-line"><b>Documents connected:</b> BCA Scheme &amp; Syllabus, University Ordinance 11 (exam rules), and the detailed 5th Semester syllabus — plus anything an admin has uploaded since.</p>
+      <p class="lead">A document assistant: upload PDFs and ask questions answered straight from their content.</p>
+      <p class="about-line"><b>What it is:</b> An AI assistant that answers questions about the PDFs uploaded to it, using retrieval-augmented generation.</p>
+      <p class="about-line"><b>How it works:</b> A question is converted into an embedding, matched against relevant document chunks using semantic search, and then passed to an LLM to generate a grounded response.</p>
+      <p class="about-line"><b>Documents connected:</b> Whatever PDFs an admin has uploaded.</p>
       <p class="about-line"><b>Built by:</b> Jatin Setia · BCA · DBIT (GGSIPU)</p>
 
       <div class="feature-list">
-        <div class="feature"><b>📖 Syllabus-first</b><p>Grounded in official academic documents.</p></div>
+        <div class="feature"><b>📖 Document-first</b><p>Grounded in the PDFs you upload.</p></div>
         <div class="feature"><b>🔎 Semantic search</b><p>Vector retrieval over document chunks.</p></div>
         <div class="feature"><b>🔗 Cited sources</b><p>Each answer shows which document it drew from.</p></div>
-        <div class="feature"><b>🛡️ Admin uploads</b><p>Admins can add new syllabus PDFs live.</p></div>
+        <div class="feature"><b>🛡️ Admin uploads</b><p>Admins can add new PDFs live.</p></div>
       </div>
     </div>
   </section>
@@ -1038,7 +1033,7 @@ html[data-theme="dark"] .auth-card{border-color:color-mix(in srgb,var(--accent) 
   <div id="inputBar">
     <div id="inputArea">
       <button id="quickChatBtn" class="qc-trigger" onclick="openQuickChat()" title="Quick Chat" aria-label="Open quick chat">⚡</button>
-      <textarea id="questionInput" rows="1" placeholder="Ask about the BCA syllabus…" aria-label="Ask a question"></textarea>
+      <textarea id="questionInput" rows="1" placeholder="Ask about your documents…" aria-label="Ask a question"></textarea>
       <button id="askBtn" onclick="askQuestion()">Ask</button>
     </div>
     <div class="input-hint">Enter to send · Shift + Enter for a new line · ⚡ for quick chat</div>
@@ -1079,7 +1074,7 @@ html[data-theme="dark"] .auth-card{border-color:color-mix(in srgb,var(--accent) 
   <div class="auth-card">
     <div class="auth-brand mono"><div class="brand-mark" id="authBrandMark">N</div><span id="authBrandName">NEXUS</span></div>
     <h2 id="authTitle">Welcome back</h2>
-    <p class="auth-sub" id="authSub">Log in to use the syllabus assistant.</p>
+    <p class="auth-sub" id="authSub">Log in to use the document assistant.</p>
 
     <div class="auth-tabs" role="tablist">
       <button type="button" role="tab" id="authTabLogin" class="active" aria-selected="true" onclick="setAuthMode('login')">Log in</button>
@@ -1096,8 +1091,8 @@ html[data-theme="dark"] .auth-card{border-color:color-mix(in srgb,var(--accent) 
             <input type="text" id="authEnrol" placeholder="e.g. 01234567890" autocomplete="off" maxlength="30">
           </div>
           <div>
-            <label for="authCourse">Course / Year <span>(optional)</span></label>
-            <input type="text" id="authCourse" placeholder="BCA · 2nd Year" maxlength="60">
+            <label for="authCourse">Role / Organisation <span>(optional)</span></label>
+            <input type="text" id="authCourse" placeholder="e.g. Analyst · Acme Corp" maxlength="60">
           </div>
         </div>
       </div>
@@ -1205,19 +1200,9 @@ let palettes = {
   dark: Object.assign({}, themeDefaults.dark)
 };
 
-const sourceLabels = {
-  'BCASYL.pdf': 'BCA Scheme & Syllabus',
-  'Ordinance11.pdf': 'Ordinance 11 (Exam Rules)',
-  'BCA_5th_Sem.pdf': '5th Semester Syllabus',
-  'BCA_1st_year.pdf': '1st Year Syllabus'
-};
+const sourceLabels = {};
 
-const sourceColors = {
-  'BCASYL.pdf': 's-blue',
-  'Ordinance11.pdf': 's-amber',
-  'BCA_5th_Sem.pdf': 's-plum',
-  'BCA_1st_year.pdf': ''
-};
+const sourceColors = {};
 
 let currentMode = appDefaults.mode;
 let currentBubbleStyle = appDefaults.bubbleStyle;
@@ -1330,7 +1315,7 @@ async function runStudySession(action='ask'){
   }
   if(btn.disabled) return;
 
-  const semester = $('studySemester').value || null;
+  const semester = null;
   const loading = addStudyLoading();
   btn.disabled = true;
   btn.textContent = 'Thinking…';
@@ -1405,20 +1390,20 @@ function newChat(){
     <div class="welcome" id="welcome">
       <div class="welcome-logo" id="welcomeLogoLetter">${branding.name.charAt(0).toUpperCase()}</div>
       <h2>What do you want to know?</h2>
-      <p>Ask about the DBIT BCA syllabus, subjects, units, credits, topics, or exam rules from your connected academic documents.</p>
+      <p>Ask anything about the documents that have been uploaded. Answers come straight from the PDFs, with the file and page cited.</p>
       <div class="quick-grid">
-        <button class="quick-btn c-teal" onclick="openQuickChatFor('credits')">
-        <div class="quick-title">🎓 Credit structure</div><div class="quick-sub">Pick a semester or subject</div>
-      </button>
-      <button class="quick-btn c-blue" onclick="openQuickChatFor('subjects')">
-        <div class="quick-title">📚 Semester subjects</div><div class="quick-sub">Pick a semester</div>
-      </button>
-      <button class="quick-btn c-plum" onclick="openQuickChatFor('syllabus')">
-        <div class="quick-title">🗂️ Find a syllabus</div><div class="quick-sub">Pick a semester, then a subject</div>
-      </button>
-      <button class="quick-btn c-amber" onclick="openQuickChatFor('grading')">
-        <div class="quick-title">📋 Exam rules</div><div class="quick-sub">Marks, CGPA, evaluation</div>
-      </button>
+        <button class="quick-btn c-teal" onclick="openQuickChatFor('summary')">
+          <div class="quick-title">📄 Summarize a document</div><div class="quick-sub">Get the main points</div>
+        </button>
+        <button class="quick-btn c-blue" onclick="openQuickChatFor('find')">
+          <div class="quick-title">🔎 Find a topic</div><div class="quick-sub">Locate it and see the page</div>
+        </button>
+        <button class="quick-btn c-plum" onclick="openQuickChatFor('keypoints')">
+          <div class="quick-title">🗂️ Key points</div><div class="quick-sub">Headings, lists and figures</div>
+        </button>
+        <button class="quick-btn c-amber" onclick="openQuickChatFor('define')">
+          <div class="quick-title">📖 Explain a term</div><div class="quick-sub">As the document defines it</div>
+        </button>
     </div>`;
   showView('chat');
   showToast('New chat started');
@@ -1434,7 +1419,7 @@ function loadProfile(){
   $('avatarLetterSm').textContent=letter;
   $('avatarLetterLg').textContent=letter;
   $('footerName').textContent=p.name || 'Your name';
-  $('footerCourse').textContent=p.course || 'BCA · DBIT';
+  $('footerCourse').textContent=p.course || '';
   const headSub = $('profHeadSub');
   if(headSub) headSub.textContent = authSession.username
     ? `Signed in as @${authSession.username} · details are saved in this browser.`
@@ -1790,28 +1775,35 @@ window.addEventListener('resize',()=>{
   if(window.innerWidth>800)closeMobileSidebar();
 });
 
-const QC_SEMESTERS = [
-  { label:'1st', word:'first', num:1 }, { label:'2nd', word:'second', num:2 },
-  { label:'3rd', word:'third', num:3 }, { label:'4th', word:'fourth', num:4 },
-  { label:'5th', word:'fifth', num:5 }, { label:'6th', word:'sixth', num:6 },
-  { label:'7th', word:'seventh', num:7 }, { label:'8th', word:'eighth', num:8 }
-];
-
-const QC_SUBJECTS_BY_SEMESTER = {
-  1: ['Programming for Problem Solving using C', 'Fundamentals of Information Technology', 'Web Technologies', 'Mathematical Foundation for Computer Science', 'Writing Skills', 'Understanding India', 'Bridge Course in Mathematics'],
-  2: ['Database Management System', 'Object Oriented Programming using Java', 'Data Structures and Algorithms', 'Software Engineering', 'Soft Skills', 'Environment Studies'],
-  3: [],
-  4: [],
-  5: ['Computer Networks', 'Artificial Intelligence', 'Natural Language Processing', 'Network Security', 'Full Stack Development using Java', 'Introduction to Management & Entrepreneurship Development']
+const QC_PROMPTS = {
+  summary:   { icon:'📄', title:'Summarize a document', sub:'Get the main points',
+               prompt:'Summarize the main points of the document I name next.' },
+  find:      { icon:'🔎', title:'Find a topic', sub:'Locate it and see the page',
+               prompt:'Where in the documents is the following topic discussed, and what does it say? ' },
+  keypoints: { icon:'🗂️', title:'Key points', sub:'Headings, lists and figures',
+               prompt:'List the key points, with any important figures or dates, from the document I name next.' },
+  define:    { icon:'📖', title:'Explain a term', sub:'As the document defines it',
+               prompt:'Explain the following term as the documents define it: ' }
 };
 
-let qcSelectedIntent = null;
-let qcSelectedSemester = null;
-
 function openQuickChat(){
-  qcSelectedIntent = null;
-  qcSelectedSemester = null;
-  qcRenderIntents();
+  $('qcTitle').textContent = 'Quick Chat';
+  $('qcSubtitle').textContent = 'What do you need?';
+  $('qcBackBtn').style.display = 'none';
+  const body = $('qcBody');
+  body.innerHTML = '';
+  Object.keys(QC_PROMPTS).forEach(id=>{
+    const q = QC_PROMPTS[id];
+    const btn = document.createElement('button');
+    btn.className = 'qc-option';
+    btn.innerHTML = `<span class="qc-option-icon">${q.icon}</span>
+      <span class="qc-option-text">
+        <div class="qc-option-title">${q.title}</div>
+        <div class="qc-option-sub">${q.sub}</div>
+      </span>`;
+    btn.onclick = ()=>openQuickChatFor(id);
+    body.appendChild(btn);
+  });
   $('qcOverlay').classList.add('show');
 }
 
@@ -1820,156 +1812,12 @@ function closeQuickChat(evt){
   $('qcOverlay').classList.remove('show');
 }
 
-function qcRenderIntents(){
-  $('qcTitle').textContent = 'Quick Chat';
-  $('qcSubtitle').textContent = 'What do you need?';
-  $('qcBackBtn').style.display = 'none';
+function qcGoBack(){ openQuickChat(); }
 
-  const body = $('qcBody');
-  body.innerHTML = '';
-  QC_INTENTS.forEach(intent=>{
-    const btn=document.createElement('button');
-    btn.className='qc-option';
-    btn.innerHTML=`<span class="qc-option-icon">${intent.icon}</span>
-      <span class="qc-option-text">
-        <div class="qc-option-title">${intent.title}</div>
-        <div class="qc-option-sub">${intent.sub}</div>
-      </span>`;
-    btn.onclick=()=>qcRenderSemesters(intent);
-    body.appendChild(btn);
-  });
-}
-
-const QC_INTENTS = [
-  { id:'syllabus', icon:'📚', title:'Find Syllabus', sub:'Units and topics for a subject',
-    needsSubject:true, fullLabel:'Full Semester Syllabus', fullSub:'Every subject, unit by unit', subjectSub:'Unit-wise syllabus',
-    build:(w)=>`What is the full unit-wise syllabus for the ${w} semester?`,
-    buildSubject:(w,s)=>`What is the unit-wise syllabus for ${s} in the ${w} semester?` },
-  { id:'subjects', icon:'🗂️', title:'Find Subjects', sub:'All subjects offered in a semester',
-    needsSubject:false,
-    build:(w)=>`What subjects are there in the ${w} semester?` },
-  { id:'credits', icon:'🎓', title:'Credit Structure', sub:'Credits for a semester or one subject',
-    needsSubject:true, fullLabel:'Whole Semester Credits', fullSub:'Credit split across every subject', subjectSub:'Credits and L-T-C hours',
-    build:(w)=>`What is the credit structure for the ${w} semester?`,
-    buildSubject:(w,s)=>`How many credits does ${s} carry in the ${w} semester, and what are its L-T-C hours?` },
-  { id:'grading', icon:'📋', title:'Exam Rules & Marks', sub:'Marks split, CGPA, evaluation',
-    needsSubject:true, fullLabel:'Whole Semester Marks Scheme', fullSub:'Internal and external marks per subject', subjectSub:'Internal and external marks',
-    build:(w)=>`What is the internal and external marks scheme for every subject in the ${w} semester?`,
-    buildSubject:(w,s)=>`What are the internal and external marks for ${s} in the ${w} semester?` }
-];
-
-const QC_GENERAL_EXAM_QUESTION = 'How is CGPA calculated according to the exam ordinance?';
-
-function openQuickChatFor(intentId){
-  const intent = QC_INTENTS.find(i => i.id === intentId);
-  if(!intent){ openQuickChat(); return; }
-  qcSelectedSemester = null;
-  qcRenderSemesters(intent);
-  $('qcOverlay').classList.add('show');
-}
-
-function qcGoBack(){
-  if(qcSelectedIntent && qcSelectedIntent.needsSubject && qcSelectedSemester){
-    qcSelectedSemester = null;
-    qcRenderSemesters(qcSelectedIntent);
-  }else{
-    qcSelectedIntent = null;
-    qcSelectedSemester = null;
-    qcRenderIntents();
-  }
-}
-
-function qcSemesterChosen(sem){
-  qcSelectedSemester = sem;
-  if(qcSelectedIntent.needsSubject) qcRenderSubjects(sem);
-  else qcFinish(sem);
-}
-
-function qcRenderSemesters(intent){
-  qcSelectedIntent = intent;
-  qcSelectedSemester = null;
-  $('qcTitle').textContent = intent.title;
-  $('qcSubtitle').textContent = 'Which semester?';
-  $('qcBackBtn').style.display = 'grid';
-
-  const body = $('qcBody');
-  body.innerHTML = '<div class="qc-sem-grid" id="qcSemGrid"></div>';
-  const grid = $('qcSemGrid');
-  QC_SEMESTERS.forEach(sem=>{
-    const btn = document.createElement('button');
-    btn.className = 'qc-sem-btn';
-    btn.textContent = sem.label;
-    btn.onclick = ()=>qcSemesterChosen(sem);
-    grid.appendChild(btn);
-  });
-
-  if(intent.id === 'grading'){
-    const general = document.createElement('button');
-    general.className = 'qc-option';
-    general.style.marginTop = '12px';
-    general.innerHTML = `<span class="qc-option-icon">⚖️</span>
-      <span class="qc-option-text">
-        <div class="qc-option-title">General exam rules</div>
-        <div class="qc-option-sub">CGPA, grading, passing criteria</div>
-      </span>`;
-    general.onclick = ()=>{
-      $('qcOverlay').classList.remove('show');
-      usePrompt(QC_GENERAL_EXAM_QUESTION);
-    };
-    body.appendChild(general);
-  }
-}
-
-function qcRenderSubjects(sem){
-  const intent = qcSelectedIntent;
-  $('qcTitle').textContent = intent.title;
-  $('qcSubtitle').textContent = `${sem.label} semester — which subject?`;
-  $('qcBackBtn').style.display = 'grid';
-
-  const body = $('qcBody');
-  body.innerHTML = '';
-
-  const fullBtn = document.createElement('button');
-  fullBtn.className = 'qc-option';
-  fullBtn.innerHTML = `<span class="qc-option-icon">📖</span>
-    <span class="qc-option-text">
-      <div class="qc-option-title">${intent.fullLabel}</div>
-      <div class="qc-option-sub">${intent.fullSub}</div>
-    </span>`;
-  fullBtn.onclick = ()=>qcFinish(sem);
-  body.appendChild(fullBtn);
-
-  const subjects = QC_SUBJECTS_BY_SEMESTER[sem.num] || [];
-  subjects.forEach(subject=>{
-    const btn = document.createElement('button');
-    btn.className = 'qc-option';
-    btn.innerHTML = `<span class="qc-option-icon">📘</span>
-      <span class="qc-option-text">
-        <div class="qc-option-title">${subject}</div>
-        <div class="qc-option-sub">${intent.subjectSub}</div>
-      </span>`;
-    btn.onclick = ()=>qcFinishSubject(sem, subject);
-    body.appendChild(btn);
-  });
-
-  if(!subjects.length){
-    const note = document.createElement('div');
-    note.style.cssText = 'font-size:11.5px;color:var(--muted);text-align:center;padding:12px 6px 2px;line-height:1.5';
-    note.textContent = "Individual subjects for this semester aren't listed yet — use the first option above, or just type the subject name in chat.";
-    body.appendChild(note);
-  }
-}
-
-function qcFinishSubject(sem, subject){
-  const question = qcSelectedIntent.buildSubject(sem.word, subject);
+function openQuickChatFor(id){
+  const q = QC_PROMPTS[id];
   $('qcOverlay').classList.remove('show');
-  usePrompt(question);
-}
-
-function qcFinish(sem){
-  const question = qcSelectedIntent.build(sem.word);
-  $('qcOverlay').classList.remove('show');
-  usePrompt(question);
+  if(q) usePrompt(q.prompt);
 }
 
 let authSession = { token:null, username:null, role:null, name:null };
@@ -2073,8 +1921,8 @@ function setAuthMode(mode){
   $('authConfirmWrap').style.display = signup ? 'block' : 'none';
   $('authTitle').textContent = signup ? 'Create your account' : 'Welcome back';
   $('authSub').textContent = signup
-    ? 'Sign up to use the syllabus assistant. It takes about a minute.'
-    : 'Log in to use the syllabus assistant.';
+    ? 'Sign up to use the document assistant. It takes about a minute.'
+    : 'Log in to use the document assistant.';
   $('authSubmit').textContent = signup ? 'Create account' : 'Log in';
   $('authPassword').setAttribute('autocomplete', signup ? 'new-password' : 'current-password');
   $('authPassword').placeholder = signup ? 'At least 8 characters' : 'Your password';
@@ -2256,7 +2104,7 @@ function renderAdminPanel(){
     <input type="text" id="brandNameInput" placeholder="e.g. NEXUS" maxlength="40" value="${escapeAttr(branding.name)}">
 
     <label for="brandTaglineInput">Tagline <span style="text-transform:none;font-weight:600;letter-spacing:0">(optional)</span></label>
-    <input type="text" id="brandTaglineInput" placeholder="e.g. Syllabus Assistant — leave blank for none" maxlength="100" value="${escapeAttr(branding.tagline)}">
+    <input type="text" id="brandTaglineInput" placeholder="e.g. Document Assistant — leave blank for none" maxlength="100" value="${escapeAttr(branding.tagline)}">
 
     <div class="field-error" id="brandingError"></div>
 
@@ -2264,7 +2112,7 @@ function renderAdminPanel(){
       <button class="primary" id="brandingSaveBtn" onclick="saveBranding()">Save Branding</button>
     </div>
 
-    <h2>Add a Syllabus PDF</h2>
+    <h2>Add a PDF</h2>
     <p class="lead">Upload a PDF and it's chunked, embedded, and added to the chatbot's knowledge base immediately — no server restart needed.</p>
 
     <div class="dropzone" id="dropzone" onclick="$('fileInput').click()">
@@ -2400,8 +2248,7 @@ async function uploadPdf(){
     }
 
     statusEl.className = 'upload-status show success';
-    const codes = (data.course_codes_found || []).join(', ') || 'none detected';
-    statusEl.textContent = `${data.message} ${data.chunks_added} chunks added. Course codes found: ${codes}.`;
+    statusEl.textContent = `${data.message} ${data.chunks_added} chunks added. `;
     showToast('Document indexed');
     clearPickedFile();
     loadAdminDocuments();

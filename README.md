@@ -1,6 +1,6 @@
-# NEXUS AI — Campus Assistant
+# NEXUS AI — Document Assistant
 
-A RAG (retrieval-augmented generation) chatbot that answers questions about college syllabi, ordinances and notes straight from the official PDFs, and tells you **which file and page** each answer came from.
+A RAG (retrieval-augmented generation) chatbot. Upload any PDFs and ask questions; it answers straight from their content and tells you **which file and page** each answer came from.
 
 **Live demo:** https://nexus-ai-vxpd.onrender.com/app
 
@@ -11,21 +11,21 @@ A RAG (retrieval-augmented generation) chatbot that answers questions about coll
 
 ## What it does
 
-- Answers questions such as *"What is in BCA101T unit 3?"* or *"List the subjects and credits in semester 3"* from your PDFs.
-- **Cites its sources inline**, e.g. `[BCA_1st_year.pdf, p. 3]`, and returns a structured `citations` list from the API.
+- Answers questions such as *"Summarize section 3 of the report"* or *"What does the handbook say about refunds?"* from your PDFs.
+- **Cites its sources inline**, e.g. `[report.pdf, p. 3]`, and returns a structured `citations` list from the API.
 - Understands follow-up questions by rewriting them into standalone questions using the chat history.
-- Study tools: notes, quizzes and practice sessions generated from the retrieved documents.
+- Study tools: notes, quizzes, flashcards and explanations generated from the retrieved documents.
 - Accounts with login and signup, per-user rate limits, and an admin panel to upload or delete PDFs and change branding.
 - Gemini-powered image generation, plus voice input and read-aloud in the browser.
 
 ## How retrieval works
 
-1. **Indexing:** each PDF is split at its "Course Code:" headers, then into overlapping chunks (1500 characters, 200 overlap). Every chunk is stored with its `source`, `page`, `page_end` and `course_code`.
-2. **Hybrid search:** the question is embedded and searched in ChromaDB (vector search), and also searched with BM25 (keyword search). The BM25 tokenizer understands course codes, so `BCA 101T`, `bca101t` and `BCA101` all match.
+1. **Indexing:** each PDF is split into overlapping chunks (documents with "Course Code:" headers are split at those headers first) (1500 characters, 200 overlap). Every chunk is stored with its `source`, `page`, `page_end` and `course_code`.
+2. **Hybrid search:** the question is embedded and searched in ChromaDB (vector search), and also searched with BM25 (keyword search). The BM25 tokenizer also recognises structured codes (for example `BCA 101T`, `bca101t` and `BCA101` all match), which helps with documents that use course or part codes.
 3. **Fusion:** both ranked lists are merged with Reciprocal Rank Fusion.
 4. **Reranking (optional):** a cross-encoder re-scores the merged candidates and keeps the best 6. This is switched off on the free demo to save memory (`RERANK=0`).
-5. **Exact lookups:** for questions about a whole semester or a specific course code, the matching chunks are added directly from the metadata.
-6. **Answer:** the chunks go to Gemini with `Source | Course Code | Page` headers, and the model is told to cite only pages it was given.
+5. **Exact lookups (optional):** if a document uses course codes (such as a syllabus), questions that name a code or semester also pull in the matching chunks directly from the metadata.
+6. **Answer:** the chunks go to Gemini with `Source | Page` headers, and the model is told to cite only pages it was given.
 
 ## Tech stack
 
@@ -59,10 +59,10 @@ ADMIN_USERNAME=admin
 ADMIN_PASSWORD=choose_a_strong_password
 ```
 
-Build the index from the PDFs, then start the app:
+Put your PDFs in the project folder, build the index, then start the app (you can also upload PDFs later from the admin panel):
 
 ```bash
-python3 build_index.py
+python3 build_index.py        # indexes every PDF in the folder
 python3 app.py
 ```
 
