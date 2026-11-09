@@ -449,6 +449,8 @@ html[data-bubble="blur"] .row.bot .bubble{box-shadow:var(--glow-bot)}
 
 .mode-toggle{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 .mode-toggle.four{grid-template-columns:repeat(4,1fr)}
+.mode-toggle.two{grid-template-columns:repeat(2,1fr)}
+.fx-setting-note{font-size:11px;color:var(--muted);margin-top:7px}
 .mode-toggle button{
   border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;
   padding:9px 5px;cursor:pointer;font-size:11.5px;font-weight:650;
@@ -697,54 +699,157 @@ html[data-bubble="blur"] .row.bot .bubble{box-shadow:var(--glow-bot)}
 @media(max-width:900px){.ai-grid{grid-template-columns:1fr 1fr}.ai-row{grid-template-columns:1fr}.effect-grid{grid-template-columns:1fr 1fr 1fr}}
 @media(max-width:600px){.ai-lab-shell{padding:14px}.ai-grid{grid-template-columns:1fr}.effect-grid{grid-template-columns:1fr 1fr}}
 
+/* ================= LOGIN / SIGN-UP ================= */
+@property --ang{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes authSpin{to{--ang:360deg}}
+@keyframes authUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes authFloat{0%{transform:translate(0,0) scale(1)}50%{transform:translate(4vmax,-3vmax) scale(1.12)}100%{transform:translate(-3vmax,4vmax) scale(.95)}}
+@keyframes authShake{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-7px)}40%,60%{transform:translateX(7px)}}
+@keyframes authOut{to{opacity:0;transform:scale(1.04);filter:blur(8px)}}
+@keyframes authBlink{50%{opacity:0}}
+@keyframes authSpinner{to{transform:rotate(360deg)}}
+@keyframes authDots{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+@keyframes authShine{to{transform:translateX(260%) skewX(-18deg)}}
+
 .auth-screen{
-  position:fixed;inset:0;z-index:200;display:flex;align-items:center;justify-content:center;
-  padding:24px;overflow-y:auto;background-color:var(--paper);
+  position:fixed;inset:0;z-index:200;display:flex;padding:24px;overflow-y:auto;overflow-x:hidden;background-color:var(--paper);
   background-image:
     linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
-    radial-gradient(circle at 15% 10%, color-mix(in srgb, var(--accent) 16%, transparent) 0%, transparent 36%),
-    radial-gradient(circle at 88% 85%, color-mix(in srgb, var(--accent-2) 14%, transparent) 0%, transparent 38%);
-  background-size:42px 42px,42px 42px,auto,auto;
-  background-repeat:repeat,repeat,no-repeat,no-repeat;
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size:42px 42px,42px 42px;
 }
-.auth-screen.auth-checking .auth-card{visibility:hidden}
+.auth-screen.auth-out{animation:authOut .42s ease forwards;pointer-events:none}
+.auth-aurora{position:fixed;inset:0;overflow:hidden;pointer-events:none}
+.auth-aurora i{position:absolute;border-radius:50%;filter:blur(80px);opacity:.5;animation:authFloat 20s ease-in-out infinite alternate;
+  translate:calc(var(--px,0) * 34px) calc(var(--py,0) * 34px);transition:translate .4s ease-out}
+.auth-aurora i:nth-child(1){width:52vmax;height:52vmax;left:-14vmax;top:-18vmax;background:var(--accent)}
+.auth-aurora i:nth-child(2){width:46vmax;height:46vmax;right:-14vmax;bottom:-18vmax;background:var(--accent-2);animation-duration:26s;animation-delay:-6s}
+.auth-aurora i:nth-child(3){width:30vmax;height:30vmax;left:38%;top:42%;background:var(--accent-3);opacity:.22;animation-duration:32s;animation-delay:-12s}
+html:not([data-theme="dark"]) .auth-aurora i{opacity:.26}
+html:not([data-theme="dark"]) .auth-aurora i:nth-child(3){opacity:.14}
+.auth-screen.auth-checking .auth-shell{visibility:hidden}
+
+.auth-shell{position:relative;z-index:1;width:min(1080px,100%);margin:auto;display:grid;grid-template-columns:1.12fr .88fr;gap:56px;align-items:center}
+
+/* hero (left) */
+.auth-hero{min-width:0}
+.auth-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));border-radius:999px;
+  background:color-mix(in srgb,var(--accent) 9%,transparent);color:var(--accent);font:700 11px 'JetBrains Mono','SF Mono',Consolas,monospace;letter-spacing:.06em;text-transform:uppercase}
+.auth-pill b{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 0 var(--accent);animation:authPulse 2s ease-out infinite}
+@keyframes authPulse{70%{box-shadow:0 0 0 9px transparent}100%{box-shadow:0 0 0 0 transparent}}
+.auth-hero h1{margin:18px 0 14px;font-size:clamp(32px,4.4vw,52px);line-height:1.04;letter-spacing:-.035em;font-weight:800}
+.auth-hero h1 em{font-style:normal;background:linear-gradient(100deg,var(--accent),var(--accent-2),var(--accent));background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:fxShimmer 6s linear infinite}
+.auth-lead{margin:0 0 26px;max-width:480px;color:color-mix(in srgb,var(--ink) 74%,transparent);font-size:15px;line-height:1.65}
+
+.auth-demo{max-width:500px;border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--surface) 72%,transparent);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:var(--shadow);overflow:hidden}
+.auth-demo-bar{display:flex;align-items:center;gap:6px;padding:10px 14px;border-bottom:1px solid var(--line);font:600 10.5px 'JetBrains Mono',Consolas,monospace;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.auth-demo-bar i{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.auth-demo-bar i:nth-child(1){background:#ff5f57}.auth-demo-bar i:nth-child(2){background:#febc2e}.auth-demo-bar i:nth-child(3){background:#28c840}
+.auth-demo-bar span{margin-left:auto}
+.auth-demo-body{padding:16px 16px 14px;min-height:178px;font-size:13.5px;line-height:1.55}
+.auth-demo-q{display:inline-block;max-width:92%;margin-left:auto;float:right;clear:both;padding:8px 12px;border-radius:12px 12px 3px 12px;background:var(--accent-soft);border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);min-height:20px}
+.auth-demo-a{clear:both;display:block;margin-top:12px;padding:10px 12px;border-radius:12px 12px 12px 3px;background:var(--surface);border:1px solid var(--line);border-left:2px solid var(--accent);min-height:44px;visibility:hidden}
+.auth-demo-a.on{visibility:visible}
+.auth-caret::after{content:"";display:inline-block;width:7px;height:1em;margin-left:2px;vertical-align:-2px;background:var(--accent);animation:authBlink 1s steps(1) infinite}
+.auth-dots{display:inline-flex;gap:4px;align-items:center;height:18px}
+.auth-dots i{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:authDots 1s ease-in-out infinite}
+.auth-dots i:nth-child(2){animation-delay:.15s}.auth-dots i:nth-child(3){animation-delay:.3s}
+.auth-demo-src{display:inline-flex;align-items:center;gap:6px;margin-top:10px;padding:3px 10px;border-radius:999px;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);
+  background:var(--accent-soft);color:var(--accent);font:600 10.5px 'JetBrains Mono',Consolas,monospace;opacity:0;transform:translateY(4px);transition:.4s ease}
+.auth-demo-src.on{opacity:1;transform:none}
+.auth-demo-src:empty{visibility:hidden}
+.auth-demo-src::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+
+.auth-feats{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 0;padding:0;list-style:none}
+.auth-feats li{display:flex;align-items:center;gap:8px;padding:8px 13px;border:1px solid var(--line);border-radius:11px;background:color-mix(in srgb,var(--surface) 60%,transparent);font-size:12.5px;font-weight:600}
+.auth-feats li span{font-size:15px}
+
+/* form card (right) */
 .auth-card{
-  width:min(440px,100%);margin:auto;background:var(--paper);border:1px solid var(--line);
-  border-radius:18px;padding:30px 28px 24px;box-shadow:var(--shadow);animation:qcRise .22s ease-out;
+  position:relative;width:min(440px,100%);justify-self:center;
+  background:color-mix(in srgb,var(--paper) 74%,transparent);backdrop-filter:blur(18px) saturate(1.2);-webkit-backdrop-filter:blur(18px) saturate(1.2);
+  border:1px solid var(--line);border-radius:20px;padding:32px 30px 24px;box-shadow:var(--shadow),0 30px 80px -30px color-mix(in srgb,var(--accent) 40%,transparent);
+  transition:transform .18s ease-out;will-change:transform;
 }
-html[data-theme="dark"] .auth-card{border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
-.auth-brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:750;margin-bottom:22px}
-.auth-card h2{font-size:22px;letter-spacing:-.02em;margin:0 0 6px}
+.auth-card::before{content:"";position:absolute;inset:-1px;border-radius:21px;padding:1.5px;pointer-events:none;
+  background:conic-gradient(from var(--ang),transparent 0 62%,var(--accent) 80%,var(--accent-2) 92%,transparent);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);
+  animation:authSpin 7s linear infinite;opacity:.9}
+.auth-card.auth-shake{animation:authShake .5s cubic-bezier(.36,.07,.19,.97)}
+.auth-screen:not(.auth-checking) .auth-card>*{animation:authUp .55s cubic-bezier(.2,.8,.2,1) both}
+.auth-card>:nth-child(1){animation-delay:.05s!important}.auth-card>:nth-child(2){animation-delay:.1s!important}.auth-card>:nth-child(3){animation-delay:.15s!important}
+.auth-card>:nth-child(4){animation-delay:.2s!important}.auth-card>:nth-child(5){animation-delay:.27s!important}.auth-card>:nth-child(6){animation-delay:.34s!important}.auth-card>:nth-child(7){animation-delay:.4s!important}
+
+.auth-brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:750;margin-bottom:20px}
+.auth-card h2{font-size:26px;letter-spacing:-.03em;margin:0 0 6px;font-weight:800}
 .auth-sub{margin:0 0 20px;color:var(--muted);font-size:13px;line-height:1.55}
-.auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:4px}
-.auth-tabs button{border:0;background:transparent;color:var(--muted);border-radius:8px;padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;transition:.15s ease}
+
+.auth-tabs{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
+.auth-tabs button{position:relative;z-index:1;border:0;background:transparent;color:var(--muted);border-radius:9px;padding:10px;font-size:12.5px;font-weight:700;cursor:pointer;transition:color .2s}
 .auth-tabs button:hover{color:var(--ink)}
-.auth-tabs button.active{background:var(--accent-soft);color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset}
-.auth-card label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:15px 0 6px;font-family:'JetBrains Mono','SF Mono',Consolas,monospace}
+.auth-tabs button.active{color:var(--accent);background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent) inset}
+.auth-tabs.slide::before{content:"";position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 5px);border-radius:9px;background:var(--accent-soft);box-shadow:0 0 0 1px var(--accent) inset;transition:transform .35s cubic-bezier(.3,1.5,.5,1)}
+.auth-tabs.slide[data-mode="signup"]::before{transform:translateX(calc(100% + 6px))}
+.auth-tabs.slide button.active{background:transparent;box-shadow:none}
+
+.auth-card label{display:block;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin:15px 0 6px;font-family:'JetBrains Mono','SF Mono',Consolas,monospace;transition:color .2s}
 .auth-card label span{text-transform:none;font-weight:600;letter-spacing:0}
+.auth-card label:focus-within,.auth-card .fld:focus-within>label{color:var(--accent)}
 .auth-card input[type=text],.auth-card input[type=password]{
-  width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:9px;
-  background:var(--surface);color:var(--ink);outline:none;font-size:13.5px;
+  width:100%;padding:12px 13px;border:1px solid var(--line);border-radius:11px;background:var(--surface);color:var(--ink);outline:none;font-size:14px;
+  transition:border-color .2s,box-shadow .2s,background-color .2s;background-repeat:no-repeat;background-position:13px center;background-size:16px;
 }
-.auth-card input[type=text]:focus,.auth-card input[type=password]:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 14%,transparent)}
+.auth-card input.ico{padding-left:40px}
+.auth-card input.ico-user{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a98a6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='8' r='4'/%3E%3Cpath d='M4 21c0-4 4-6 8-6s8 2 8 6'/%3E%3C/svg%3E")}
+.auth-card input.ico-lock{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a98a6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4' y='11' width='16' height='10' rx='2'/%3E%3Cpath d='M8 11V7a4 4 0 0 1 8 0v4'/%3E%3C/svg%3E")}
+.auth-card input[type=text]:focus,.auth-card input[type=password]:focus{border-color:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 16%,transparent),0 6px 20px -8px color-mix(in srgb,var(--accent) 50%,transparent)}
 .auth-pw{position:relative}
 .auth-pw input{padding-right:64px}
 .auth-eye{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--muted);font-size:11px;font-weight:700;cursor:pointer;padding:6px 9px;border-radius:6px}
 .auth-eye:hover{color:var(--accent-3);background:var(--surface-2)}
 .auth-row{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+#authSignupFields,#authConfirmWrap{animation:authUp .38s ease both}
+
+.auth-caps{display:none;margin-top:8px;font-size:11.5px;color:#ffb020;font-weight:600}
+.auth-caps.show{display:block}
+.auth-meter{display:none;margin-top:10px}
+.auth-screen[data-mode="signup"] .auth-meter{display:block}
+.auth-meter-bars{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+.auth-meter-bars i{height:4px;border-radius:4px;background:var(--line);transition:background .25s}
+.auth-meter[data-s="1"] i:nth-child(-n+1){background:#ff4d6d}
+.auth-meter[data-s="2"] i:nth-child(-n+2){background:#ffb020}
+.auth-meter[data-s="3"] i:nth-child(-n+3){background:#7bd88f}
+.auth-meter[data-s="4"] i{background:var(--accent)}
+.auth-meter-text{display:block;margin-top:5px;font-size:11px;color:var(--muted);min-height:14px}
+
 .auth-submit{
-  width:100%;margin-top:20px;border:1px solid var(--accent);background:var(--accent);color:#001317;
-  border-radius:10px;padding:12px;font-size:13.5px;font-weight:800;cursor:pointer;transition:.15s ease;
+  position:relative;overflow:hidden;width:100%;margin-top:20px;border:0;color:#001317;border-radius:12px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;
+  background:linear-gradient(120deg,var(--accent),color-mix(in srgb,var(--accent) 55%,var(--accent-2)));
+  box-shadow:0 8px 24px -8px color-mix(in srgb,var(--accent) 70%,transparent);transition:transform .15s,box-shadow .2s;
 }
-.auth-submit:hover{box-shadow:0 0 18px color-mix(in srgb,var(--accent) 45%,transparent)}
-.auth-submit:disabled{opacity:.6;cursor:not-allowed;box-shadow:none}
-.auth-foot{margin:14px 0 0;text-align:center;font-size:11.5px;color:var(--muted);min-height:0}
+.auth-submit::before{content:"";position:absolute;top:0;bottom:0;left:-60%;width:38%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-18deg)}
+.auth-submit:hover::before{animation:authShine .7s ease}
+.auth-submit:hover{transform:translateY(-1px);box-shadow:0 12px 30px -8px color-mix(in srgb,var(--accent) 80%,transparent)}
+.auth-submit:active{transform:translateY(0) scale(.99)}
+.auth-submit:disabled{opacity:.8;cursor:progress;transform:none}
+.auth-submit:disabled::after{content:"";display:inline-block;width:13px;height:13px;margin-left:9px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;vertical-align:-2px;animation:authSpinner .7s linear infinite}
+.auth-trust{display:flex;align-items:center;justify-content:center;gap:7px;margin:16px 0 0;font-size:11px;color:var(--muted)}
+.auth-foot{margin:12px 0 0;text-align:center;font-size:11.5px;color:var(--muted);min-height:0}
 .auth-foot:empty{display:none}
 .field-error.notice{background:var(--accent-soft);color:var(--accent-3);border-color:color-mix(in srgb,var(--accent) 30%,transparent)}
+
+@media(max-width:900px){
+  .auth-shell{grid-template-columns:1fr;gap:0}
+  .auth-hero{display:none}
+}
 @media(max-width:520px){
   .auth-row{grid-template-columns:1fr}
-  .auth-card{padding:24px 20px 20px}
+  .auth-card{padding:26px 20px 20px}
+  .auth-screen{padding:14px}
+}
+@media(prefers-reduced-motion:reduce){
+  .auth-screen *,.auth-screen *::before,.auth-screen *::after{animation:none!important;transition:none!important}
 }
 #view-aiLab .ai-lab-shell{width:min(1100px,100%)}
 .ai-lab-panel .study-session-shell{width:100%;height:auto;min-height:0;padding:0}
@@ -940,7 +1045,7 @@ html[data-theme="dark"] .auth-card{border-color:color-mix(in srgb,var(--accent) 
           <input type="text" id="profName" placeholder="Your name" autocomplete="name">
         </div>
         <div>
-          <label for="profEnrol">Enrolment Number</label>
+          <label for="profEnrol">ID Number</label>
           <input type="text" id="profEnrol" placeholder="Optional" autocomplete="off">
         </div>
         <div class="full">
@@ -988,6 +1093,27 @@ html[data-theme="dark"] .auth-card{border-color:color-mix(in srgb,var(--accent) 
         <button id="bgSolidBtn" onclick="setBgStyle('solid')">Solid</button>
         <button id="bgGradientBtn" onclick="setBgStyle('gradient')">Gradient</button>
       </div>
+
+      <label>Space Background</label>
+      <div class="mode-toggle two">
+        <button id="fxSpaceOff" onclick="nexusFx.set('space',false)">Off</button>
+        <button id="fxSpaceOn" onclick="nexusFx.set('space',true)">✦ On</button>
+      </div>
+      <div class="fx-setting-note">Floating particles that connect with lines and react to your cursor.</div>
+
+      <label>Mouse Light</label>
+      <div class="mode-toggle two">
+        <button id="fxSpotOff" onclick="nexusFx.set('spot',false)">Off</button>
+        <button id="fxSpotOn" onclick="nexusFx.set('spot',true)">💡 On</button>
+      </div>
+      <div class="fx-setting-note">A soft glow that follows your mouse across the page.</div>
+
+      <label>Interactive Effects</label>
+      <div class="mode-toggle two">
+        <button id="fxMasterOff" onclick="nexusFx.set('master',false)">Off</button>
+        <button id="fxMasterOn" onclick="nexusFx.set('master',true)">✨ On</button>
+      </div>
+      <div class="fx-setting-note">Cursor trail, click sparks, card tilt and animated replies. Also on the ✨ button (Alt+E).</div>
 
       <label>Accent Color</label>
       <div class="swatch-row"><input type="color" id="accentColor"><span>Buttons, highlights and your messages</span></div>
@@ -1070,51 +1196,81 @@ html[data-theme="dark"] .auth-card{border-color:color-mix(in srgb,var(--accent) 
 
 <div class="toast" id="toast"></div>
 
-<div id="authScreen" class="auth-screen auth-checking" role="dialog" aria-modal="true" aria-labelledby="authTitle">
-  <div class="auth-card">
-    <div class="auth-brand mono"><div class="brand-mark" id="authBrandMark">N</div><span id="authBrandName">NEXUS</span></div>
-    <h2 id="authTitle">Welcome back</h2>
-    <p class="auth-sub" id="authSub">Log in to use the document assistant.</p>
-
-    <div class="auth-tabs" role="tablist">
-      <button type="button" role="tab" id="authTabLogin" class="active" aria-selected="true" onclick="setAuthMode('login')">Log in</button>
-      <button type="button" role="tab" id="authTabSignup" aria-selected="false" onclick="setAuthMode('signup')">Sign up</button>
-    </div>
-
-    <form id="authForm" onsubmit="submitAuth(event)" novalidate>
-      <div id="authSignupFields" style="display:none">
-        <label for="authName">Full name</label>
-        <input type="text" id="authName" placeholder="Your name" autocomplete="name" maxlength="60">
-        <div class="auth-row">
-          <div>
-            <label for="authEnrol">Enrolment no. <span>(optional)</span></label>
-            <input type="text" id="authEnrol" placeholder="e.g. 01234567890" autocomplete="off" maxlength="30">
-          </div>
-          <div>
-            <label for="authCourse">Role / Organisation <span>(optional)</span></label>
-            <input type="text" id="authCourse" placeholder="e.g. Analyst · Acme Corp" maxlength="60">
-          </div>
+<div id="authScreen" class="auth-screen auth-checking" data-mode="login" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+  <div class="auth-aurora" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="auth-shell">
+    <section class="auth-hero" aria-hidden="true">
+      <span class="auth-pill"><b></b>Document assistant</span>
+      <h1>Your documents,<br><em>answered.</em></h1>
+      <p class="auth-lead">Upload PDFs and ask in plain language. Every answer comes straight from your files, with the exact file and page cited.</p>
+      <div class="auth-demo">
+        <div class="auth-demo-bar"><i></i><i></i><i></i><span>Example</span></div>
+        <div class="auth-demo-body">
+          <div class="auth-demo-q auth-caret" id="demoQ"></div>
+          <div class="auth-demo-a" id="demoA"></div>
+          <div class="auth-demo-src" id="demoSrc"></div>
         </div>
       </div>
+      <ul class="auth-feats">
+        <li><span>📍</span>Page-level citations</li>
+        <li><span>🔎</span>Semantic + keyword search</li>
+        <li><span>🧠</span>Notes, quizzes &amp; flashcards</li>
+      </ul>
+    </section>
 
-      <label for="authUsername">Username</label>
-      <input type="text" id="authUsername" placeholder="Your username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="30">
-
-      <label for="authPassword">Password</label>
-      <div class="auth-pw">
-        <input type="password" id="authPassword" placeholder="Your password" autocomplete="current-password" maxlength="128">
-        <button type="button" class="auth-eye" id="authEye" onclick="toggleAuthPassword()" aria-label="Show or hide password">Show</button>
+    <div class="auth-card">
+      <div class="auth-brand mono"><div class="brand-mark" id="authBrandMark">N</div><span id="authBrandName">NEXUS</span></div>
+      <div>
+        <h2 id="authTitle">Welcome back</h2>
+        <p class="auth-sub" id="authSub">Log in to use the document assistant.</p>
       </div>
 
-      <div id="authConfirmWrap" style="display:none">
-        <label for="authConfirm">Confirm password</label>
-        <input type="password" id="authConfirm" placeholder="Re-enter your password" autocomplete="new-password" maxlength="128">
+      <div class="auth-tabs slide" id="authTabs" data-mode="login" role="tablist">
+        <button type="button" role="tab" id="authTabLogin" class="active" aria-selected="true" onclick="setAuthMode('login')">Log in</button>
+        <button type="button" role="tab" id="authTabSignup" aria-selected="false" onclick="setAuthMode('signup')">Sign up</button>
       </div>
 
-      <div class="field-error" id="authError" role="alert"></div>
-      <button type="submit" class="auth-submit" id="authSubmit">Log in</button>
-    </form>
-    <p class="auth-foot" id="authFoot"></p>
+      <form id="authForm" onsubmit="submitAuth(event)" novalidate>
+        <div id="authSignupFields" style="display:none">
+          <label for="authName">Full name</label>
+          <input type="text" id="authName" placeholder="Your name" autocomplete="name" maxlength="60">
+          <div class="auth-row">
+            <div>
+              <label for="authEnrol">ID no. <span>(optional)</span></label>
+              <input type="text" id="authEnrol" placeholder="e.g. EMP-1024" autocomplete="off" maxlength="30">
+            </div>
+            <div>
+              <label for="authCourse">Role / Org <span>(optional)</span></label>
+              <input type="text" id="authCourse" placeholder="e.g. Analyst, Acme" maxlength="60">
+            </div>
+          </div>
+        </div>
+
+        <label for="authUsername">Username</label>
+        <input type="text" class="ico ico-user" id="authUsername" placeholder="Your username" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="30">
+
+        <label for="authPassword">Password</label>
+        <div class="auth-pw">
+          <input type="password" class="ico ico-lock" id="authPassword" placeholder="Your password" autocomplete="current-password" maxlength="128">
+          <button type="button" class="auth-eye" id="authEye" onclick="toggleAuthPassword()" aria-label="Show or hide password">Show</button>
+        </div>
+        <div class="auth-caps" id="authCaps">⇪ Caps Lock is on</div>
+        <div class="auth-meter" id="authMeter" data-s="0" aria-live="polite">
+          <div class="auth-meter-bars"><i></i><i></i><i></i><i></i></div>
+          <span class="auth-meter-text" id="authMeterText"></span>
+        </div>
+
+        <div id="authConfirmWrap" style="display:none">
+          <label for="authConfirm">Confirm password</label>
+          <input type="password" class="ico ico-lock" id="authConfirm" placeholder="Re-enter your password" autocomplete="new-password" maxlength="128">
+        </div>
+
+        <div class="field-error" id="authError" role="alert"></div>
+        <button type="submit" class="auth-submit" id="authSubmit">Log in</button>
+      </form>
+      <p class="auth-trust">🔒 Passwords are stored hashed · Sessions expire after 12 hours</p>
+      <p class="auth-foot" id="authFoot"></p>
+    </div>
   </div>
 </div>
 
@@ -1879,7 +2035,8 @@ function forceLogin(message){
 
 function showAuthScreen(notice){
   const screen = $('authScreen');
-  screen.classList.remove('auth-checking');
+  clearTimeout(screen._hideT);
+  screen.classList.remove('auth-checking', 'auth-out');
   screen.style.display = 'flex';
   setAppInert(true);
   setAuthMode(authMode);
@@ -1888,8 +2045,11 @@ function showAuthScreen(notice){
 }
 
 function hideAuthScreen(){
-  $('authScreen').style.display = 'none';
+  const screen = $('authScreen');
   setAppInert(false);
+  clearTimeout(screen._hideT);
+  screen.classList.add('auth-out');
+  screen._hideT = setTimeout(() => { screen.style.display = 'none'; screen.classList.remove('auth-out'); }, 420);
 }
 
 function showAuthError(message, isNotice = false){
@@ -1897,6 +2057,10 @@ function showAuthError(message, isNotice = false){
   el.textContent = message;
   el.classList.toggle('notice', isNotice);
   el.classList.add('show');
+  if(!isNotice){
+    const card = document.querySelector('.auth-card');
+    if(card){ card.classList.remove('auth-shake'); void card.offsetWidth; card.classList.add('auth-shake'); }
+  }
 }
 
 function hideAuthError(){
@@ -1905,6 +2069,8 @@ function hideAuthError(){
 
 function applySignupAvailability(){
   $('authTabSignup').style.display = signupEnabled ? '' : 'none';
+  $('authTabs').classList.toggle('slide', signupEnabled);
+  $('authTabs').style.gridTemplateColumns = signupEnabled ? '' : '1fr';
   if(!signupEnabled && authMode === 'signup') setAuthMode('login');
   else $('authFoot').textContent = signupEnabled ? '' : 'Sign-ups are closed. Ask an admin for an account.';
 }
@@ -1913,6 +2079,8 @@ function setAuthMode(mode){
   if(mode === 'signup' && !signupEnabled) mode = 'login';
   authMode = mode;
   const signup = mode === 'signup';
+  $('authTabs').dataset.mode = mode;
+  $('authScreen').dataset.mode = mode;
   $('authTabLogin').classList.toggle('active', !signup);
   $('authTabSignup').classList.toggle('active', signup);
   $('authTabLogin').setAttribute('aria-selected', String(!signup));
@@ -1973,7 +2141,7 @@ async function submitAuth(e){
     }
     completeLogin(data);
   }catch(err){
-    showAuthError('Could not reach the server. Make sure the backend is running at http://127.0.0.1:5001.');
+    showAuthError('Could not reach the server. Please check your connection and try again in a moment.');
   }finally{
     btn.disabled = false;
     btn.textContent = idleLabel;
@@ -2417,5 +2585,417 @@ if(typeof addMessage === 'function' && !window.__nexusAddMessageWrapped){
 
 document.getElementById('navAiLab')?.addEventListener('click', function(){ showView('aiLab'); }, false);
 </script>
+<script id="auth-fx">
+(function(){
+  'use strict';
+  var screen = document.getElementById('authScreen');
+  if(!screen) return;
+  var card = screen.querySelector('.auth-card');
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine = window.matchMedia && matchMedia('(pointer: fine)').matches;
+  var $ = function(id){ return document.getElementById(id); };
+  function visible(){ return screen.style.display !== 'none' && !screen.classList.contains('auth-checking') && !document.hidden; }
+
+  /* parallax aurora + gentle card tilt */
+  var raf = 0, px = 0, py = 0;
+  screen.addEventListener('pointermove', function(e){
+    if(e.pointerType === 'touch') return;
+    px = (e.clientX / window.innerWidth - .5) * 2; py = (e.clientY / window.innerHeight - .5) * 2;
+    if(raf) return;
+    raf = requestAnimationFrame(function(){
+      raf = 0;
+      screen.style.setProperty('--px', px.toFixed(3)); screen.style.setProperty('--py', py.toFixed(3));
+      if(card && fine && !reduce){
+        var typing = card.contains(document.activeElement) && /INPUT|BUTTON/.test(document.activeElement.tagName);
+        card.style.transform = typing ? '' : 'perspective(1100px) rotateY(' + (px * 2.2).toFixed(2) + 'deg) rotateX(' + (-py * 2.2).toFixed(2) + 'deg)';
+      }
+    });
+  }, {passive:true});
+  screen.addEventListener('pointerleave', function(){ if(card) card.style.transform = ''; });
+  card && card.addEventListener('focusin', function(){ card.style.transform = ''; });
+
+  /* caps lock hint */
+  var caps = $('authCaps');
+  function capsCheck(e){ if(e.getModifierState) caps.classList.toggle('show', e.getModifierState('CapsLock')); }
+  ['authPassword','authConfirm'].forEach(function(id){
+    var el = $(id); if(!el) return;
+    el.addEventListener('keydown', capsCheck); el.addEventListener('keyup', capsCheck);
+    el.addEventListener('blur', function(){ caps.classList.remove('show'); });
+  });
+
+  /* password strength meter (sign-up) */
+  var meter = $('authMeter'), meterText = $('authMeterText');
+  var labels = ['', 'Too weak', 'Okay', 'Good', 'Strong'];
+  function score(p){
+    if(!p) return 0;
+    var s = 0;
+    if(p.length >= 8) s++;
+    if(/[a-z]/.test(p) && /[A-Z]/.test(p)) s++;
+    if(/\d/.test(p)) s++;
+    if(/[^A-Za-z0-9]/.test(p) || p.length >= 14) s++;
+    if(p.length < 8) s = Math.min(s, 1);
+    return Math.max(s, 1);
+  }
+  $('authPassword').addEventListener('input', function(){
+    var s = score(this.value);
+    meter.setAttribute('data-s', String(s));
+    meterText.textContent = s ? (labels[s] + (this.value.length < 8 ? ' · at least 8 characters needed' : '')) : '';
+  });
+
+  /* live demo: typed question, thinking dots, typed answer, citation chip */
+  var demos = [
+    { q:'What does the handbook say about leave approval?',
+      a:'Leave requests need line-manager approval at least 5 working days in advance.', s:'handbook.pdf · p. 14' },
+    { q:'Summarize section 3 of the annual report',
+      a:'Section 3 covers revenue by region and highlights growth in two of the four markets.', s:'annual-report.pdf · pp. 22–24' },
+    { q:'Explain “force majeure” as the contract defines it',
+      a:'Events beyond either party’s reasonable control, such as natural disasters or war, that prevent performance.', s:'contract.pdf · p. 7' }
+  ];
+  var dq = $('demoQ'), da = $('demoA'), ds = $('demoSrc');
+  function sleep(ms){ return new Promise(function(r){ setTimeout(r, ms); }); }
+  async function waitVisible(){ while(!visible()) await sleep(700); }
+  async function typeInto(el, text, speed){
+    for(var i = 1; i <= text.length; i++){
+      if(!visible()) await waitVisible();
+      el.textContent = text.slice(0, i);
+      await sleep(speed + Math.random() * speed * .6);
+    }
+  }
+  async function loop(){
+    var i = 0;
+    for(;;){
+      await waitVisible();
+      var d = demos[i++ % demos.length];
+      dq.textContent = ''; dq.classList.add('auth-caret'); da.classList.remove('on'); da.textContent = ''; ds.classList.remove('on'); ds.textContent = '';
+      await typeInto(dq, d.q, 30);
+      dq.classList.remove('auth-caret');
+      await sleep(350);
+      da.classList.add('on'); da.innerHTML = '<span class="auth-dots"><i></i><i></i><i></i></span>';
+      await sleep(900);
+      da.textContent = '';
+      await typeInto(da, d.a, 16);
+      ds.textContent = d.s; ds.classList.add('on');
+      await sleep(3600);
+    }
+  }
+  if(reduce){
+    var d0 = demos[0]; dq.textContent = d0.q; dq.classList.remove('auth-caret'); da.classList.add('on'); da.textContent = d0.a; ds.textContent = d0.s; ds.classList.add('on');
+  } else { loop(); }
+})();
+</script>
+<!-- ===== NEXUS FX: interactive visual features (self-contained, can be removed as one block) ===== -->
+<style id="fx-style">
+#fxSpot{position:fixed;inset:0;pointer-events:none;z-index:201;opacity:0;transition:opacity .45s ease;
+  background:radial-gradient(440px circle at var(--mx,50%) var(--my,50%),color-mix(in srgb,var(--accent) 13%,transparent),transparent 62%)}
+html[data-theme="dark"] #fxSpot{mix-blend-mode:screen}
+#fxSpot.on{opacity:1}
+html[data-fx="off"] #fxSpot,html[data-spot="off"] #fxSpot{display:none}
+#fxCanvas{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:4}
+html[data-fx="off"] #fxCanvas{display:none}
+
+/* tilt + glare on cards */
+.fx-glare::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .2s;
+  background:radial-gradient(190px circle at var(--gx,50%) var(--gy,50%),color-mix(in srgb,var(--accent) 24%,transparent),transparent 70%)}
+.fx-glare.fx-hot::after{opacity:1}
+.fx-tilting{transition:transform .08s linear,border-color .2s,box-shadow .2s!important;will-change:transform}
+
+/* message entrance */
+@keyframes fxRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes fxLine{from{opacity:0;transform:translateY(6px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+html:not([data-fx="off"]) .row.fx-in{animation:fxRise .35s ease both}
+html:not([data-fx="off"]) .bubble > .fx-line{animation:fxLine .45s ease both}
+
+/* shimmering headline */
+@keyframes fxShimmer{to{background-position:300% 0}}
+html:not([data-fx="off"]) .welcome h2{background:linear-gradient(90deg,var(--ink),var(--accent),var(--accent-2),var(--ink));background-size:300% 100%;
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;animation:fxShimmer 8s linear infinite}
+
+/* dock: effects toggle + scroll to bottom */
+#fxDock{position:fixed;right:18px;bottom:96px;display:flex;flex-direction:column;gap:10px;z-index:30}
+.fx-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;
+  display:grid;place-items:center;font-size:16px;box-shadow:0 4px 14px rgba(0,0,0,.18);transition:transform .15s,border-color .2s,opacity .25s}
+.fx-btn:hover{transform:translateY(-2px);border-color:var(--accent)}
+#fxDown{opacity:0;pointer-events:none;transform:translateY(8px)}
+#fxDown.show{opacity:1;pointer-events:auto;transform:none}
+#fxToggle[aria-pressed="false"]{opacity:.55}
+
+/* shortcuts panel */
+#fxHelp{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.45);backdrop-filter:blur(3px)}
+#fxHelp.show{display:flex}
+.fx-help-card{width:min(420px,92vw);background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:16px;padding:20px 22px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.fx-help-card h3{margin:0 0 12px;font-size:16px}
+.fx-help-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:7px 0;border-top:1px solid var(--line);font-size:13px}
+.fx-help-row:first-of-type{border-top:0}
+.fx-help-row kbd{font:600 11px 'JetBrains Mono',Consolas,monospace;border:1px solid var(--line);border-bottom-width:2px;border-radius:6px;padding:2px 7px;background:var(--paper);color:var(--accent)}
+.fx-help-hint{margin-top:12px;font-size:11px;color:var(--muted)}
+@media(max-width:700px){#fxDock{bottom:120px;right:12px}}
+@media(prefers-reduced-motion:reduce){.row.fx-in,.bubble>.fx-line{animation:none!important}}
+</style>
+
+<div id="fxSpot" aria-hidden="true"></div>
+<canvas id="fxCanvas" aria-hidden="true"></canvas>
+<div id="fxDock">
+  <button class="fx-btn" id="fxDown" title="Scroll to latest" aria-label="Scroll to latest message">↓</button>
+  <button class="fx-btn" id="fxToggle" title="Toggle visual effects (Alt+E)" aria-label="Toggle visual effects" aria-pressed="true">✨</button>
+</div>
+<div id="fxHelp" role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+  <div class="fx-help-card">
+    <h3>⌨️ Keyboard shortcuts</h3>
+    <div class="fx-help-row"><span>Focus the question box</span><span><kbd>/</kbd> or <kbd>Ctrl</kbd>+<kbd>K</kbd></span></div>
+    <div class="fx-help-row"><span>New chat</span><span><kbd>Alt</kbd>+<kbd>N</kbd></span></div>
+    <div class="fx-help-row"><span>Toggle visual effects</span><span><kbd>Alt</kbd>+<kbd>E</kbd></span></div>
+    <div class="fx-help-row"><span>Show / hide this help</span><span><kbd>?</kbd></span></div>
+    <div class="fx-help-row"><span>Close popups</span><span><kbd>Esc</kbd></span></div>
+    <div class="fx-help-hint">Tip: click anywhere for a spark burst, and hover cards to tilt them.</div>
+  </div>
+</div>
+
+<script id="fx-script">
+(function(){
+  'use strict';
+  var root = document.documentElement;
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine = window.matchMedia && matchMedia('(pointer: fine)').matches;
+  var $ = function(id){ return document.getElementById(id); };
+  var spot = $('fxSpot');
+
+  /* ---------- on/off (persisted; off by default for reduced-motion users) ---------- */
+  var saved = null;
+  try { saved = localStorage.getItem('nexus_fx'); } catch(e){}
+  var enabled = saved ? saved === 'on' : !reduce;
+  var spaceOn = false, spotOn = false;   /* both off by default; changed in Settings */
+  try { spaceOn = localStorage.getItem('nexus_fx_space') === 'on'; spotOn = localStorage.getItem('nexus_fx_spot') === 'on'; } catch(e){}
+  function syncUI(){
+    var pairs = { fxSpace:spaceOn, fxSpot:spotOn, fxMaster:enabled };
+    Object.keys(pairs).forEach(function(k){
+      var on = $(k + 'On'), off = $(k + 'Off');
+      if(on) on.classList.toggle('active', pairs[k]);
+      if(off) off.classList.toggle('active', !pairs[k]);
+    });
+  }
+  function applyEnabled(){
+    root.setAttribute('data-fx', enabled ? 'on' : 'off');
+    root.setAttribute('data-spot', spotOn ? 'on' : 'off');
+    var t = $('fxToggle'); if(t) t.setAttribute('aria-pressed', String(enabled));
+    try {
+      localStorage.setItem('nexus_fx', enabled ? 'on' : 'off');
+      localStorage.setItem('nexus_fx_space', spaceOn ? 'on' : 'off');
+      localStorage.setItem('nexus_fx_spot', spotOn ? 'on' : 'off');
+    } catch(e){}
+    if(!spotOn) spot.classList.remove('on');
+    if(enabled) start(); else stop();
+    syncUI();
+  }
+  function toggleFx(){
+    enabled = !enabled; applyEnabled();
+    if(typeof showToast === 'function') showToast(enabled ? 'Interactive effects on' : 'Interactive effects off');
+  }
+  /* public hook used by the Settings buttons */
+  window.nexusFx = { set:function(which, v){
+    if(which === 'space') spaceOn = !!v; else if(which === 'spot') spotOn = !!v; else enabled = !!v;
+    applyEnabled();
+  }};
+
+  /* ---------- colour helper: any CSS colour -> [r,g,b] ---------- */
+  var probe = document.createElement('span'); probe.style.display = 'none'; document.body.appendChild(probe);
+  function cssRGB(varName, fallback){
+    var v = getComputedStyle(root).getPropertyValue(varName).trim();
+    if(!v) return fallback;
+    probe.style.color = v;
+    var m = getComputedStyle(probe).color.match(/\d+(\.\d+)?/g);
+    return m && m.length >= 3 ? [+m[0], +m[1], +m[2]] : fallback;
+  }
+  var cA = [0,200,230], cB = [160,120,255];
+  function refreshColors(){ cA = cssRGB('--accent', cA); cB = cssRGB('--accent-2', cB); }
+  new MutationObserver(refreshColors).observe(root, {attributes:true, attributeFilter:['data-theme','style']});
+
+  /* ---------- canvas: particle network + cursor trail + click bursts ---------- */
+  var cv = $('fxCanvas'), ctx = cv.getContext('2d');
+  var W = 0, H = 0, dpr = 1, nodes = [], sparks = [], raf = 0, running = false;
+  var mouse = { x:-9999, y:-9999, active:false, lx:-9999, ly:-9999 };
+
+  function resize(){
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    var n = Math.max(22, Math.min(64, Math.round(W * H / 24000)));
+    nodes = [];
+    for(var i = 0; i < n; i++){
+      nodes.push({ x:Math.random()*W, y:Math.random()*H, vx:(Math.random()-.5)*.35, vy:(Math.random()-.5)*.35, r:Math.random()*1.3+.6 });
+    }
+  }
+  function rgba(c, a){ return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a + ')'; }
+
+  function emit(x, y, n, speed, life){
+    for(var i = 0; i < n; i++){
+      var a = Math.random() * Math.PI * 2, s = Math.random() * speed;
+      sparks.push({ x:x, y:y, vx:Math.cos(a)*s, vy:Math.sin(a)*s, life:life*(0.6+Math.random()*.4), max:life, r:Math.random()*2+.8, alt:Math.random()<.4 });
+    }
+    if(sparks.length > 400) sparks.splice(0, sparks.length - 400);
+  }
+
+  function frame(){
+    raf = requestAnimationFrame(frame);
+    ctx.clearRect(0, 0, W, H);
+    var LINK = 115, MR = 150, i, j, p, q, dx, dy, d;
+
+    for(i = 0; spaceOn && i < nodes.length; i++){
+      p = nodes[i];
+      if(mouse.active){
+        dx = p.x - mouse.x; dy = p.y - mouse.y; d = Math.sqrt(dx*dx + dy*dy);
+        if(d < MR && d > 0.1){ var f = (1 - d/MR) * 0.9; p.vx += dx/d * f * 0.05; p.vy += dy/d * f * 0.05; }
+      }
+      p.vx *= 0.995; p.vy *= 0.995;
+      var sp = Math.abs(p.vx) + Math.abs(p.vy);
+      if(sp < 0.12){ p.vx += (Math.random()-.5)*.02; p.vy += (Math.random()-.5)*.02; }
+      p.x += p.vx; p.y += p.vy;
+      if(p.x < -10) p.x = W + 10; else if(p.x > W + 10) p.x = -10;
+      if(p.y < -10) p.y = H + 10; else if(p.y > H + 10) p.y = -10;
+    }
+    ctx.lineWidth = 1;
+    for(i = 0; spaceOn && i < nodes.length; i++){
+      p = nodes[i];
+      for(j = i + 1; j < nodes.length; j++){
+        q = nodes[j]; dx = p.x - q.x; dy = p.y - q.y; d = dx*dx + dy*dy;
+        if(d < LINK*LINK){
+          ctx.strokeStyle = rgba(cA, (1 - Math.sqrt(d)/LINK) * 0.16);
+          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+        }
+      }
+      if(mouse.active){
+        dx = p.x - mouse.x; dy = p.y - mouse.y; d = Math.sqrt(dx*dx + dy*dy);
+        if(d < MR + 30){
+          ctx.strokeStyle = rgba(cB, (1 - d/(MR+30)) * 0.4);
+          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke();
+        }
+      }
+      ctx.fillStyle = rgba(cA, 0.45);
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 6.2832); ctx.fill();
+    }
+
+    for(i = sparks.length - 1; i >= 0; i--){
+      var s = sparks[i];
+      s.life -= 0.016; if(s.life <= 0){ sparks.splice(i, 1); continue; }
+      s.vx *= 0.96; s.vy *= 0.96; s.vy += 0.012;
+      s.x += s.vx; s.y += s.vy;
+      var al = Math.max(0, s.life / s.max);
+      ctx.fillStyle = rgba(s.alt ? cB : cA, al * 0.85);
+      ctx.beginPath(); ctx.arc(s.x, s.y, s.r * (0.4 + al*0.6), 0, 6.2832); ctx.fill();
+    }
+  }
+  function start(){ if(running) return; running = true; refreshColors(); resize(); raf = requestAnimationFrame(frame); }
+  function stop(){ running = false; cancelAnimationFrame(raf); ctx.clearRect(0, 0, W, H); sparks.length = 0; spot.classList.remove('on'); }
+
+  var rz; window.addEventListener('resize', function(){ clearTimeout(rz); rz = setTimeout(function(){ if(running) resize(); }, 150); });
+  document.addEventListener('visibilitychange', function(){ if(document.hidden){ cancelAnimationFrame(raf); } else if(running){ raf = requestAnimationFrame(frame); } });
+
+  /* ---------- pointer: spotlight, trail, click burst ---------- */
+  var pend = false;
+  document.addEventListener('pointermove', function(e){
+    if(!enabled || e.pointerType === 'touch') return;
+    mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true;
+    if(!pend){
+      pend = true;
+      requestAnimationFrame(function(){
+        pend = false;
+        if(spotOn){
+          spot.style.setProperty('--mx', mouse.x + 'px'); spot.style.setProperty('--my', mouse.y + 'px');
+          spot.classList.add('on');
+        }
+        var dx = mouse.x - mouse.lx, dy = mouse.y - mouse.ly;
+        if(dx*dx + dy*dy > 36){ emit(mouse.x, mouse.y, 1, 0.8, 0.9); mouse.lx = mouse.x; mouse.ly = mouse.y; }
+      });
+    }
+  }, {passive:true});
+  document.addEventListener('pointerleave', function(){ mouse.active = false; spot.classList.remove('on'); });
+  document.documentElement.addEventListener('mouseleave', function(){ mouse.active = false; spot.classList.remove('on'); });
+  document.addEventListener('pointerdown', function(e){ if(enabled) emit(e.clientX, e.clientY, 16, 4.2, 1.1); }, {passive:true});
+
+  /* ---------- 3D tilt + glare on cards ---------- */
+  var TILT = '.quick-btn,.ai-tool-card,.feature,.study-action-btn,.qc-option';
+  var cur = null;
+  function release(el){
+    if(!el) return;
+    el.classList.remove('fx-hot', 'fx-tilting'); el.style.transform = '';
+  }
+  document.addEventListener('pointermove', function(e){
+    if(!enabled || reduce || !fine || e.pointerType !== 'mouse') { if(cur){ release(cur); cur = null; } return; }
+    var el = e.target.closest ? e.target.closest(TILT) : null;
+    if(el !== cur){ release(cur); cur = el; }
+    if(!el) return;
+    if(getComputedStyle(el).position === 'static') el.style.position = 'relative';
+    var r = el.getBoundingClientRect();
+    var px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+    el.classList.add('fx-glare', 'fx-hot', 'fx-tilting');
+    el.style.setProperty('--gx', (px*100).toFixed(1) + '%'); el.style.setProperty('--gy', (py*100).toFixed(1) + '%');
+    el.style.transform = 'perspective(700px) rotateX(' + ((.5 - py) * 8).toFixed(2) + 'deg) rotateY(' + ((px - .5) * 10).toFixed(2) + 'deg) translateY(-2px)';
+  }, {passive:true});
+  document.addEventListener('pointerout', function(e){ if(cur && !cur.contains(e.relatedTarget)){ release(cur); cur = null; } });
+
+  /* ---------- messages: entrance + line-by-line reveal for answers ---------- */
+  var chatInner = $('chatInner');
+  if(chatInner){
+    new MutationObserver(function(muts){
+      if(!enabled) return;
+      muts.forEach(function(m){
+        m.addedNodes.forEach(function(n){
+          if(n.nodeType !== 1) return;
+          if(n.classList.contains('row')){ n.classList.add('fx-in'); }
+          var bubble = n.classList.contains('bubble') ? n : null;
+          if(!bubble && n.parentElement && n.parentElement.classList.contains('bubble')){ bubble = n.parentElement; }
+          if(bubble && bubble.closest('.row.bot') && !bubble.querySelector('.typing')){
+            Array.prototype.forEach.call(bubble.children, function(c, i){
+              if(c.classList.contains('fx-line')) return;
+              c.classList.add('fx-line'); c.style.animationDelay = Math.min(i * 70, 700) + 'ms';
+            });
+          }
+        });
+      });
+    }).observe(chatInner, {childList:true, subtree:true});
+  }
+
+  /* ---------- scroll-to-bottom button ---------- */
+  var chat = $('chat'), down = $('fxDown');
+  function chatScrolled(){
+    if(!chat || !down) return;
+    var away = chat.scrollHeight - chat.scrollTop - chat.clientHeight;
+    down.classList.toggle('show', away > 260 && chat.classList.contains('active'));
+  }
+  if(chat){
+    chat.addEventListener('scroll', chatScrolled, {passive:true});
+    new MutationObserver(chatScrolled).observe(chat, {attributes:true, attributeFilter:['class']});
+  }
+  if(down) down.addEventListener('click', function(){ chat.scrollTo({top:chat.scrollHeight, behavior:'smooth'}); });
+
+  /* ---------- keyboard shortcuts ---------- */
+  var help = $('fxHelp');
+  function typing(t){ return t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT' || t.isContentEditable); }
+  function toggleHelp(force){ help.classList.toggle('show', typeof force === 'boolean' ? force : !help.classList.contains('show')); }
+  function focusAsk(){
+    if(typeof showView === 'function') showView('chat');
+    var q = $('questionInput'); if(q){ q.focus(); q.select && q.select(); }
+  }
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){
+      toggleHelp(false);
+      if(typeof closeQuickChat === 'function') closeQuickChat();
+      return;
+    }
+    if((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k'){ e.preventDefault(); focusAsk(); return; }
+    if(e.altKey && e.key.toLowerCase() === 'e'){ e.preventDefault(); toggleFx(); return; }
+    if(e.altKey && e.key.toLowerCase() === 'n'){ e.preventDefault(); if(typeof newChat === 'function') newChat(); return; }
+    if(typing(e.target) || e.ctrlKey || e.metaKey || e.altKey) return;
+    if(e.key === '/'){ e.preventDefault(); focusAsk(); }
+    else if(e.key === '?'){ e.preventDefault(); toggleHelp(); }
+  });
+  help.addEventListener('click', function(e){ if(e.target === help) toggleHelp(false); });
+
+  /* ---------- boot ---------- */
+  $('fxToggle').addEventListener('click', toggleFx);
+  applyEnabled();
+})();
+</script>
+<!-- ===== /NEXUS FX ===== -->
 </body>
 </html>
