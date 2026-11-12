@@ -11,6 +11,7 @@ from urllib.parse import quote
 
 import indexer
 import retrieval
+from storage import storage
 import requests
 from flask import Flask, request, jsonify, g, send_from_directory
 from flask_cors import CORS
@@ -77,6 +78,10 @@ def _warm_up():
         _t = time.time()
         vec = model.encode("warm up").tolist()
         print(f"[warmup] embedding model ready ({time.time() - _t:.1f}s)", flush=True)
+        if storage.persistent:
+            _t = time.time()
+            sync_documents_from_db()
+            print(f"[warmup] documents synced from database ({time.time() - _t:.1f}s)", flush=True)
         _t = time.time()
         retrieval._load_corpus(collection)
         print(f"[warmup] corpus + keyword index ready ({time.time() - _t:.1f}s)", flush=True)
@@ -87,54 +92,78 @@ def _warm_up():
         print(f"[warmup] failed: {e}", flush=True)
 
 
+def sync_documents_from_db():
+    """Make the vector index match the database. The database is the permanent record, the
+    index on disk is rebuilt from it after every restart:
+      - PDFs an admin deleted stay deleted (even built-in ones)
+      - PDFs an admin uploaded are put back, using the saved embeddings (no re-embedding)"""
+    removed = restored = 0
+
+    for source in storage.list_deleted():
+        ids = collection.get(where={"source": source}, include=[])["ids"]
+        if ids:
+            collection.delete(ids=ids)
+            removed += len(ids)
+
+    db_ids_by_source = {}
+    for batch in storage.iter_chunks(200):
+        for row in batch:
+            db_ids_by_source.setdefault(row["source"], set()).add(row["id"])
+        have = set(collection.get(ids=[row["id"] for row in batch], include=[])["ids"])
+        missing = [row for row in batch if row["id"] not in have]
+        if missing:
+            metadatas = []
+            for row in missing:
+                meta = {"source": row["source"], "page": row["page"], "page_end": row["page_end"]}
+                if row.get("course_code"):
+                    meta["course_code"] = row["course_code"]
+                metadatas.append(meta)
+            collection.upsert(
+                ids=[row["id"] for row in missing],
+                embeddings=[row["embedding"] for row in missing],
+                documents=[row["text"] for row in missing],
+                metadatas=metadatas,
+            )
+            restored += len(missing)
+
+    # A database copy replaces any older index copy of the same file name
+    for source, keep in db_ids_by_source.items():
+        stale = [i for i in collection.get(where={"source": source}, include=[])["ids"] if i not in keep]
+        if stale:
+            collection.delete(ids=stale)
+            removed += len(stale)
+
+    if removed or restored:
+        _semester_code_cache.clear()
+    print(f"[storage] index synced: {restored} chunks restored, {removed} removed", flush=True)
+
+
 @app.before_request
 def _warm_up_once():
     _warm_up()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-ADMIN_FILE = os.path.join(BASE_DIR, "admins.json")
-SECRET_KEY = os.getenv("SECRET_KEY") or secrets.token_hex(32)
+# With a database the generated key is stored, so logins survive restarts even if SECRET_KEY is not set
+SECRET_KEY = os.getenv("SECRET_KEY") or storage.get_or_create_secret()
 serializer = URLSafeTimedSerializer(SECRET_KEY)
 TOKEN_MAX_AGE = 60 * 60 * 12  # 12 hours
 
-BRANDING_FILE = os.path.join(BASE_DIR, "branding.json")
-DEFAULT_BRANDING = {"name": "NEXUS", "tagline": ""}
 MAX_NAME_LEN = 40
 MAX_TAGLINE_LEN = 100
 
 
-def bootstrap_branding():
-    if os.path.exists(BRANDING_FILE):
-        return
-    with open(BRANDING_FILE, "w") as f:
-        json.dump(DEFAULT_BRANDING, f, indent=2)
-
-
 def load_branding():
-    try:
-        with open(BRANDING_FILE) as f:
-            data = json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        data = dict(DEFAULT_BRANDING)
-    return {
-        "name": data.get("name") or DEFAULT_BRANDING["name"],
-        "tagline": data.get("tagline", DEFAULT_BRANDING["tagline"])
-    }
+    return storage.get_branding()
 
 
 def save_branding(name, tagline):
-    data = {"name": name, "tagline": tagline}
-    with open(BRANDING_FILE, "w") as f:
-        json.dump(data, f, indent=2)
-    return data
-
-
-bootstrap_branding()
+    return storage.set_branding(name, tagline)
 
 
 def bootstrap_admin():
-    if os.path.exists(ADMIN_FILE):
+    """Create the first admin from ADMIN_USERNAME / ADMIN_PASSWORD, only if no admin exists yet."""
+    if storage.get_admins():
         return
 
     username = os.getenv("ADMIN_USERNAME", "admin")
@@ -149,19 +178,14 @@ def bootstrap_admin():
         print("Set ADMIN_USERNAME / ADMIN_PASSWORD in .env to keep this fixed.")
         print("=" * 60 + "\n")
 
-    admins = {
-        username: {
-            "password_hash": generate_password_hash(password, method="pbkdf2:sha256"),
-            "role": "admin"
-        }
-    }
-    with open(ADMIN_FILE, "w") as f:
-        json.dump(admins, f, indent=2)
+    storage.create_admin(username, {
+        "password_hash": generate_password_hash(password, method="pbkdf2:sha256"),
+        "role": "admin",
+    })
 
 
 def load_admins():
-    with open(ADMIN_FILE) as f:
-        return json.load(f)
+    return storage.get_admins()
 
 
 bootstrap_admin()
@@ -192,12 +216,10 @@ def require_admin(f):
     return wrapper
 
 
-USERS_FILE = os.path.join(BASE_DIR, "users.json")
 ALLOW_SIGNUP = os.getenv("ALLOW_SIGNUP", "true").strip().lower() not in ("false", "0", "no")
 USERNAME_RE = re.compile(r"^[a-z0-9_.-]{3,30}$")
 MIN_PASSWORD_LEN = 8
 MAX_PASSWORD_LEN = 128
-_users_lock = threading.Lock()
 
 _DUMMY_HASH = generate_password_hash("nexus-dummy-password", method="pbkdf2:sha256")
 
@@ -230,21 +252,6 @@ def _clear_attempts(key):
         _attempts.pop(key, None)
 
 
-def load_users():
-    try:
-        with open(USERS_FILE) as f:
-            return json.load(f)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return {}
-
-
-def save_users(users):
-    tmp_path = USERS_FILE + ".tmp"
-    with open(tmp_path, "w") as f:
-        json.dump(users, f, indent=2)
-    os.replace(tmp_path, USERS_FILE)
-
-
 def find_admin(username):
     admins = load_admins()
     if username in admins:
@@ -274,7 +281,7 @@ def require_login(f):
         payload = verify_token(auth_header.split(" ", 1)[1]) if auth_header.startswith("Bearer ") else None
         if not payload:
             return jsonify({"error": "Please log in to continue."}), 401
-        if payload.get("role") != "admin" and payload.get("username") not in load_users():
+        if payload.get("role") != "admin" and not storage.user_exists(payload.get("username")):
             return jsonify({"error": "Please log in to continue."}), 401
         g.current_user = payload
         return f(*args, **kwargs)
@@ -399,7 +406,7 @@ def login():
         password_ok = check_password_hash(admin_account["password_hash"], password)
     else:
         canonical, role = username.lower(), "student"
-        record = load_users().get(canonical)
+        record = storage.get_user(canonical)
         password_ok = check_password_hash(record["password_hash"] if record else _DUMMY_HASH, password) and record is not None
 
     if not password_ok:
@@ -439,19 +446,15 @@ def signup():
     if find_admin(username)[1]:
         return jsonify({"error": "That username is already taken."}), 409
 
-    with _users_lock:
-        users = load_users()
-        if username in users:
-            return jsonify({"error": "That username is already taken."}), 409
-        record = {
-            "password_hash": generate_password_hash(password, method="pbkdf2:sha256"),
-            "name": name,
-            "enrol": enrol,
-            "course": course,
-            "created": int(time.time()),
-        }
-        users[username] = record
-        save_users(users)
+    record = {
+        "password_hash": generate_password_hash(password, method="pbkdf2:sha256"),
+        "name": name,
+        "enrol": enrol,
+        "course": course,
+        "created": int(time.time()),
+    }
+    if not storage.create_user(username, record):
+        return jsonify({"error": "That username is already taken."}), 409
 
     _record_attempt(throttle_key)
     token = create_token(username, "student")
@@ -465,7 +468,7 @@ def me():
     if payload.get("role") == "admin":
         name, record = find_admin(payload["username"])
         return jsonify(public_user(name or payload["username"], "admin", record))
-    return jsonify(public_user(payload["username"], "student", load_users().get(payload["username"])))
+    return jsonify(public_user(payload["username"], "student", storage.get_user(payload["username"])))
 
 
 @app.route("/admin/verify", methods=["GET"])
@@ -490,11 +493,25 @@ def upload_pdf():
     save_path = os.path.join(BASE_DIR, filename)
     file.save(save_path)
 
+    # Re-uploading a file replaces it: clear any older chunks (index and database) first
+    try:
+        collection.delete(where={"source": filename})
+        storage.remove_chunks(filename)
+        storage.unmark_deleted(filename)
+    except Exception as e:
+        return jsonify({"error": f"Could not prepare the index: {str(e)}"}), 500
+
+    chunk_records = []
     try:
         count, courses_found = indexer.index_pdf_into_collection(
-            save_path, filename, collection, model, splitter
+            save_path, filename, collection, model, splitter, collect=chunk_records
         )
+        storage.save_chunks(chunk_records)  # makes the upload survive a restart
     except Exception as e:
+        try:
+            collection.delete(where={"source": filename})
+        except Exception:
+            pass
         return jsonify({"error": f"Failed to index PDF: {str(e)}"}), 500
 
     _semester_code_cache.clear()
@@ -502,7 +519,8 @@ def upload_pdf():
     return jsonify({
         "message": f"{filename} indexed successfully.",
         "chunks_added": count,
-        "course_codes_found": sorted(courses_found)
+        "course_codes_found": sorted(courses_found),
+        "persistent": storage.persistent,
     })
 
 
@@ -515,7 +533,7 @@ def list_documents():
         src = meta.get("source", "Unknown")
         counts[src] = counts.get(src, 0) + 1
     docs = [{"source": src, "chunks": n} for src, n in sorted(counts.items())]
-    return jsonify({"documents": docs})
+    return jsonify({"documents": docs, "persistent": storage.persistent})
 
 
 @app.route("/config", methods=["GET"])
@@ -551,6 +569,10 @@ def delete_document(source):
         return jsonify({"error": f"No document found with source '{source}'"}), 404
 
     collection.delete(where={"source": source})
+    # Forget it permanently: drop its saved chunks, and remember the deletion so a built-in
+    # PDF is not brought back by the next restart
+    storage.remove_chunks(source)
+    storage.mark_deleted(source)
     _semester_code_cache.clear()
 
     return jsonify({
@@ -685,7 +707,7 @@ def serve_frontend():
 
 @app.route("/", methods=["GET"])
 def health():
-    return jsonify({"status": "ok"})
+    return jsonify({"status": "ok", "storage": storage.name, "persistent": storage.persistent})
 
 
 TEXT_MODELS = [

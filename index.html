@@ -2300,6 +2300,7 @@ function renderAdminPanel(){
       <h3>Indexed Documents</h3>
       <button class="refresh-btn" onclick="loadAdminDocuments()">↻ Refresh</button>
     </div>
+    <div id="storageNote" style="font-size:12px;color:var(--muted);margin:2px 0 10px"></div>
     <div id="docList"><div class="doc-empty">Loading…</div></div>
   `;
 
@@ -2444,6 +2445,12 @@ async function loadAdminDocuments(){
       return;
     }
     const data = await r.json();
+    const note = $('storageNote');
+    if(note){
+      note.textContent = data.persistent
+        ? '✅ Saved permanently: uploads and deletions survive server restarts.'
+        : '⚠️ No database connected: uploads and deletions are lost when the server restarts.';
+    }
     if(!data.documents || !data.documents.length){
       listEl.innerHTML = '<div class="doc-empty">No documents indexed yet.</div>';
       return;

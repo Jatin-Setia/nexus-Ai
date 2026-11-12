@@ -13,3 +13,6 @@ __pycache__/
 *.pyc
 .DS_Store
 .fastembed_cache/
+
+# Local test database
+*.db

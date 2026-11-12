@@ -10,3 +10,4 @@ chromadb==1.5.9
 langchain-text-splitters
 fastembed
 google-genai
+psycopg2-binary

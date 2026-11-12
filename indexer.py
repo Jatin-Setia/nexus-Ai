@@ -55,10 +55,13 @@ def split_by_course(text):
     return sections
 
 
-def index_pdf_into_collection(pdf_path, filename, collection, embed_model, splitter):
+def index_pdf_into_collection(pdf_path, filename, collection, embed_model, splitter, collect=None):
     """Chunk + embed a single PDF and add it to an existing Chroma collection.
     Does NOT delete or touch any existing documents in the collection.
     Each chunk is stored with its PDF page number(s).
+    If `collect` is a list, a dict describing every chunk (id, source, page, page_end,
+    course_code, text, embedding) is appended to it, so the caller can also save the
+    chunks in the database.
     Returns (chunk_count, set_of_course_codes_found)."""
     text, page_offsets, page_numbers = extract_text_with_pages(pdf_path)
     sections = split_by_course(text)
@@ -94,12 +97,23 @@ def index_pdf_into_collection(pdf_path, filename, collection, embed_model, split
                 metadata["course_code"] = course_code
                 courses_found.add(course_code)
 
+            chunk_key = f"{filename}_chunk_{chunk_id}"
             collection.add(
-                ids=[f"{filename}_chunk_{chunk_id}"],
+                ids=[chunk_key],
                 embeddings=[embedding],
                 documents=[chunk],
                 metadatas=[metadata]
             )
+            if collect is not None:
+                collect.append({
+                    "id": chunk_key,
+                    "source": filename,
+                    "page": metadata["page"],
+                    "page_end": metadata["page_end"],
+                    "course_code": course_code,
+                    "text": chunk,
+                    "embedding": embedding,
+                })
             chunk_id += 1
             chunk_count += 1
 
